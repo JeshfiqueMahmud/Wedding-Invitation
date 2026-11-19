@@ -5,6 +5,7 @@ import confetti from 'canvas-confetti';
 import { Printer, X, Share2, Minus, Plus, ArrowRight } from 'lucide-react';
 import { SectionHeading, ease } from '../lib/motion';
 import Alpana from './Alpana';
+import { apiFetch } from '../lib/api';
 
 const EMPTY = { name: '', phone: '', email: '', attendance: 'both', guests_count: 1, dietary: '', message: '' };
 
@@ -46,7 +47,7 @@ export default function RsvpSection({ onRsvpSubmitted }) {
     }
     setLoading(true);
     try {
-      const res = await fetch('/api/rsvp', {
+      const res = await apiFetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

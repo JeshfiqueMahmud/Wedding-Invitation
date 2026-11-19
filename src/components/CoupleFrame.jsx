@@ -93,16 +93,18 @@ export default function CoupleFrame({ src, glare }) {
           {/* inner gold hairline */}
           <div className={`${ARCH} p-[1.5px] bg-gradient-to-b from-baroque-300 via-holud-deep to-baroque-300`}>
             <div className={`relative ${ARCH} overflow-hidden aspect-[9/14] bg-navy-900`}>
-              <motion.img
-                src={src}
-                alt="Illustration of Jeshfique and Tamanna holding hands in a flower garden"
-                draggable={false}
-                className="absolute inset-0 w-full h-full object-cover object-[50%_40%]"
-                initial={{ scale: 1.25, filter: 'blur(12px) saturate(0.6)' }}
-                whileInView={{ scale: 1.04, filter: 'blur(0px) saturate(1)' }}
-                viewport={{ once: true }}
-                transition={{ duration: 2.2, ease }}
-              />
+              {src && (
+                <motion.img
+                  src={src}
+                  alt="Illustration of Jeshfique and Tamanna holding hands in a flower garden"
+                  draggable={false}
+                  className="absolute inset-0 w-full h-full object-cover object-[50%_40%]"
+                  initial={{ scale: 1.25, filter: 'blur(12px) saturate(0.6)' }}
+                  whileInView={{ scale: 1.04, filter: 'blur(0px) saturate(1)' }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2.2, ease }}
+                />
+              )}
               {/* slow breathing zoom layer (separate from the reveal) */}
               <motion.div
                 aria-hidden="true"

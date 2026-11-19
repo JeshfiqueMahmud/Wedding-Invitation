@@ -2,12 +2,14 @@ import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
 import Alpana from './Alpana';
 import CoupleFrame from './CoupleFrame';
+import { useSiteImages } from '../lib/images';
 import { Reveal, ScrollWords, SectionHeading, ease } from '../lib/motion';
 
 const VERSE =
   '“And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.”';
 
 export default function BlessingSection() {
+  const { couple } = useSiteImages();
   const cameoRef = useRef(null);
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
@@ -99,7 +101,7 @@ export default function BlessingSection() {
               style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
               className="relative w-[78%] max-w-[300px] sm:max-w-[330px] mt-8 select-none"
             >
-              <CoupleFrame src="/images/couple.webp" glare={glare} />
+              <CoupleFrame src={couple} glare={glare} />
             </motion.div>
 
             <motion.span

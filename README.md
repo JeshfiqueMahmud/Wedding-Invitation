@@ -2,7 +2,7 @@
 
 A luxury full-stack React & Node.js web application for the wedding celebration of **Jeshfique Mahmud & Faheema Shaheed Tamanna**.
 
-Designed around a "Midnight Alpana" concept — ink-black night, marigold holud and ivory, with a self-drawing Bengali alpana mandala and scroll-driven Framer Motion choreography throughout — complete with an **integrated SQLite database** for guest RSVPs and guestbook wishes, high-performance mobile responsiveness, scroll-driven horizontal photo gallery with shared-element lightbox, live Dhaka countdown, ambient Web Audio raga synthesizer, and a complete RSVP Organizer Dashboard with 1-click CSV export.
+Designed around a "Midnight Alpana" concept — ink-black night, marigold holud and ivory, with a self-drawing Bengali alpana mandala and scroll-driven Framer Motion choreography throughout — complete with a **Supabase Postgres database** for guest RSVPs and guestbook wishes, high-performance mobile responsiveness, scroll-driven horizontal photo gallery with shared-element lightbox, live Dhaka countdown, ambient Web Audio raga synthesizer, and a complete RSVP Organizer Dashboard with 1-click CSV export.
 
 ---
 
@@ -36,9 +36,9 @@ The entire application is optimized for mobile phones (iOS Safari, Android Chrom
 
 ## 🌟 Core Features
 
-- **Persistent SQLite Database (`server/wedding.db`)**:
-  - Relational database powered by `sql.js` with disk synchronization.
-  - Tables: `rsvps` and `guestbook_messages`.
+- **Supabase Postgres Database** (`supabase/schema.sql`):
+  - Hosted on Supabase; the Express API connects over SSL. Photos live in Supabase Storage.
+  - Tables: `rsvps`, `guestbook_messages` and `images` (which photo goes where).
 - **Live RSVP & Party Counter**:
   - Attendance choices: Both Events, Holud Only, Reception Only, Unable to attend.
   - Stepper buttons for party size (+1s, family count).
@@ -55,21 +55,19 @@ The entire application is optimized for mobile phones (iOS Safari, Android Chrom
 
 ---
 
-## 🌍 Publishing on Render
+## 🌍 Publishing (free)
 
-The site needs a Node server (for RSVPs and the guestbook), so it is hosted on Render rather than GitHub Pages.
+- **Website:** GitHub Pages, built automatically on every push to `main` → https://jeshfiquemahmud.github.io/Wedding-Invitation/
+- **API:** Render free web service (`render.yaml`)
+- **Database & photos:** Supabase Postgres + Storage (`supabase/schema.sql`)
 
-1. Sign in at [render.com](https://render.com) with GitHub.
-2. **New → Blueprint**, choose this repository. Render reads `render.yaml`.
-3. When asked, enter an **ADMIN_PIN**: a long passphrase only the organizers know.
-4. Click **Apply**. Render builds the site and gives you a `*.onrender.com` link. Add a custom domain under **Settings → Custom Domains** if you like.
-
-The blueprint uses the paid *Starter* plan with a 1 GB disk at `/data`, because the RSVP database (`DB_PATH=/data/wedding.db`) must survive restarts. On the free plan, all RSVPs and wishes would be erased whenever the server sleeps or redeploys.
+Full click-by-click instructions, a test checklist and fixes for common errors are in **[DEPLOY.md](DEPLOY.md)**.
+Secrets go in `.env` locally (copy `.env.example`) and in Render's Environment tab — never in GitHub.
 
 ## 🚀 How to Run
 
 ### Quick Start (Production Build)
-Double click `start.bat` or run in terminal:
+First copy `.env.example` to `.env` and fill in your Supabase values (see [DEPLOY.md](DEPLOY.md)). Then double click `start.bat` or run in terminal:
 ```bash
 node server/index.js
 ```
@@ -85,14 +83,18 @@ node node_modules\vite\bin\vite.js
 
 ## 🗄️ Database Schema & API Endpoints
 
-- `GET /api/health` - Server and SQLite database health check
+- `GET /api/health` - Server and database health check
 - `GET /api/rsvps` - Retrieve all RSVPs *(admin)*
 - `POST /api/rsvp` - Submit guest attendance confirmation
 - `DELETE /api/rsvp/:id` - Remove an RSVP *(admin)*
 - `GET /api/stats` - RSVP breakdown and attendee analytics *(admin)*
 - `GET /api/export-rsvps` - Download CSV of all RSVPs *(admin)*
 
-*(admin)* routes require the `x-admin-pin` header to match the server's `ADMIN_PIN` environment variable (defaults to `2026` locally; in production the dashboard stays locked until `ADMIN_PIN` is set). Eight wrong attempts lock that IP out for 15 minutes.
+- `GET /api/images` - Site photos (also readable directly from Supabase with the anon key)
+- `POST /api/admin/images` - Upload or replace a photo, or edit its caption *(admin, multipart)*
+- `DELETE /api/admin/images/:key` - Remove a photo *(admin)*
+
+*(admin)* routes require the `x-admin-password` header to match the server's `ADMIN_PASSWORD` environment variable (defaults to `2026` locally; in production the dashboard stays locked until it is set). Eight wrong attempts lock that IP out for 15 minutes.
 - `GET /api/guestbook` - Fetch all prayers and wishes
 - `POST /api/guestbook` - Post a new wish
 - `POST /api/guestbook/:id/like` - Upvote a wish's heart counter

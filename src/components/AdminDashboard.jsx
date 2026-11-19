@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Download, Trash2, Search, RefreshCw, Users, CheckSquare, XCircle, Lock, Phone, Mail } from 'lucide-react';
+import { X, Download, Trash2, Search, RefreshCw, Users, CheckSquare, XCircle, Lock, Phone, Mail, Image as ImageIcon } from 'lucide-react';
+import { apiFetch } from '../lib/api';
+import AdminPhotos from './AdminPhotos';
 
 export default function AdminDashboard({ isOpen, onClose }) {
   const [pin, setPin] = useState('');
@@ -13,10 +15,11 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
   const [pinMessage, setPinMessage] = useState('');
   const [checking, setChecking] = useState(false);
+  const [tab, setTab] = useState('guests'); // guests | photos
 
-  // Every admin request carries the PIN; the server decides whether it is correct.
+  // Every admin request carries the password; the server decides whether it is correct.
   const adminFetch = (url, options = {}) =>
-    fetch(url, { ...options, headers: { ...(options.headers || {}), 'x-admin-pin': pin } });
+    apiFetch(url, { ...options, headers: { ...(options.headers || {}), 'x-admin-password': pin } });
 
   const handlePinSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +33,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
         fetchData();
       } else {
         const data = await res.json().catch(() => ({}));
-        setPinMessage(data.error || 'Incorrect PIN');
+        setPinMessage(data.error || 'Incorrect password');
         setPinError(true);
         setPin('');
       }
@@ -128,7 +131,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
               Organizer Passcode
             </h3>
             <p className="font-sans text-xs text-baroque-200/70 mb-5">
-              Enter the organizer PIN to view guest responses
+              Enter the organizer password to manage guests and photos
             </p>
 
             <form onSubmit={handlePinSubmit} className="space-y-3 font-sans">
@@ -136,7 +139,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 type="password"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                placeholder="Enter PIN"
+                placeholder="Password"
                 autoFocus
                 className="w-full text-center tracking-widest text-lg font-bold px-4 py-2.5 rounded-xl bg-white text-navy-950 focus:outline-none focus:ring-2 focus:ring-baroque-400"
               />
@@ -147,7 +150,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 type="submit"
                 className="w-full py-2.5 rounded-xl bg-baroque-300 hover:bg-baroque-200 active:scale-95 text-navy-950 font-bold text-xs uppercase tracking-wider shadow"
               >
-                {checking ? 'Checking…' : 'Access RSVP Database'}
+                {checking ? 'Checking…' : 'Open dashboard'}
               </button>
             </form>
           </div>
@@ -161,11 +164,28 @@ export default function AdminDashboard({ isOpen, onClose }) {
                   RSVP Database &amp; Guests
                 </h3>
                 <p className="font-sans text-[11px] sm:text-xs text-baroque-300/80">
-                  Live SQLite records for Jeshfique &amp; Tamanna’s celebrations
+                  Live Supabase records for Jeshfique &amp; Tamanna’s celebrations
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
+                <div className="flex p-0.5 rounded-xl border border-baroque-400/30 text-xs font-semibold">
+                  {[['guests', Users, 'Guests'], ['photos', ImageIcon, 'Photos']].map(([key, Icon, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setTab(key)}
+                      className={`px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 transition-colors ${
+                        tab === key ? 'bg-baroque-400 text-navy-950' : 'text-baroque-200/80 hover:bg-baroque-400/15'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {tab === 'guests' && (
+                <>
                 <button
                   type="button"
                   onClick={fetchData}
@@ -182,9 +202,15 @@ export default function AdminDashboard({ isOpen, onClose }) {
                   <Download className="w-3.5 h-3.5" />
                   <span>Export CSV</span>
                 </button>
+                </>
+                )}
               </div>
             </div>
 
+            {tab === 'photos' ? (
+              <AdminPhotos adminFetch={adminFetch} />
+            ) : (
+            <>
             {/* Metric KPI Cards (Responsive grid) */}
             {stats && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 my-3 sm:my-4">
@@ -419,6 +445,8 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 </tbody>
               </table>
             </div>
+            </>
+            )}
           </div>
         )}
       </div>

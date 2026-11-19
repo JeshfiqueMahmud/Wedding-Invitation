@@ -1,6 +1,22 @@
+# Dependencies & build output (GitHub Actions builds the site; nothing built is committed)
 node_modules/
+dist/
 .vite/
-*.log
+
+# Secrets — never commit these
 .env
+.env.*
+!.env.example
+*.pem
+*.crt
+*.key
+
+# Local data
 server/*.db
+server/*.db-journal
+
+# Logs & editor / OS clutter
+*.log
+.DS_Store
+Thumbs.db
 .claude/

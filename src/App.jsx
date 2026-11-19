@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MotionConfig, AnimatePresence } from 'framer-motion';
 import StardustCanvas from './components/StardustCanvas';
 import Navbar from './components/Navbar';
@@ -14,12 +14,19 @@ import GuestbookSection from './components/GuestbookSection';
 import AdminDashboard from './components/AdminDashboard';
 import Footer from './components/Footer';
 import InvitationIntroOverlay from './components/InvitationIntroOverlay';
+import ServerWakeToast from './components/ServerWakeToast';
+import { wakeServer } from './lib/api';
 
 export default function App() {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isIntroOpen, setIsIntroOpen] = useState(true);
   const [heroReady, setHeroReady] = useState(false);
+
+  // Start waking the (possibly sleeping) backend while the guest watches the intro.
+  useEffect(() => {
+    wakeServer();
+  }, []);
 
   return (
     <MotionConfig reducedMotion="user">
@@ -60,6 +67,7 @@ export default function App() {
         </main>
 
         <AdminDashboard isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+        <ServerWakeToast />
       </div>
     </MotionConfig>
   );

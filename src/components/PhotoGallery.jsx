@@ -3,17 +3,8 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
 import { SectionHeading, ease } from '../lib/motion';
+import { useSiteImages } from '../lib/images';
 
-const INITIAL = [
-  { src: '/photos/1.jpg', title: 'Where it began', subtitle: 'Jeshfique & Tamanna' },
-  { src: '/photos/2.jpg', title: 'A golden journey', subtitle: 'Chapter two' },
-  { src: '/photos/3.jpg', title: 'Laughter & warmth', subtitle: 'Chapter three' },
-  { src: '/photos/4.jpg', title: 'Road to forever', subtitle: 'Chapter four' },
-  { src: '/photos/5.jpg', title: 'Blessings & joy', subtitle: 'Chapter five' },
-  { src: '/photos/6.jpg', title: 'Heart to heart', subtitle: 'Chapter six' },
-  { src: '/photos/7.jpg', title: 'Special moments', subtitle: 'Chapter seven' },
-  { src: '/photos/8.jpg', title: 'Together, always', subtitle: 'Chapter eight' }
-];
 
 const slide = {
   enter: (d) => ({ x: d > 0 ? '60%' : d < 0 ? '-60%' : 0, opacity: d ? 0 : 1 }),
@@ -57,7 +48,10 @@ function PhotoCard({ photo, idx, progress, onOpen, hidden }) {
 }
 
 export default function PhotoGallery() {
-  const [photos, setPhotos] = useState(INITIAL);
+  const site = useSiteImages();
+  // visitors' own photos are added on top, only on their device
+  const [localPhotos, setLocalPhotos] = useState([]);
+  const photos = [...site.gallery, ...localPhotos];
   const [openIdx, setOpenIdx] = useState(null);
   const [originSrc, setOriginSrc] = useState(null);
   const [direction, setDirection] = useState(0);
@@ -117,7 +111,7 @@ export default function PhotoGallery() {
       title: 'Your memory',
       subtitle: `Shared photo ${i + 1}`
     }));
-    setPhotos((p) => [...p, ...added]);
+    setLocalPhotos((p) => [...p, ...added]);
     e.target.value = '';
   };
 
@@ -132,6 +126,12 @@ export default function PhotoGallery() {
           </div>
 
           <motion.div ref={trackRef} style={{ x }} className="flex items-start gap-6 sm:gap-10 pl-[8vw] pr-[8vw] will-change-transform">
+            {!site.ready &&
+              [0, 1, 2].map((i) => (
+                <div key={`ph-${i}`} aria-hidden="true" className={`shrink-0 w-[min(64vw,38svh)] sm:w-[min(320px,38svh)] ${OFFSETS[i]} bg-ivory/10 p-2.5 pb-14 rounded-sm`}>
+                  <div className="aspect-[4/5] bg-navy-800 animate-pulse" />
+                </div>
+              ))}
             {photos.map((photo, idx) => (
               <PhotoCard key={photo.src} photo={photo} idx={idx} progress={scrollYProgress} hidden={originSrc === photo.src} onOpen={(i) => {
                 setDirection(0);

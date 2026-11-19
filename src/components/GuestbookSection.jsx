@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Send } from 'lucide-react';
 import { SectionHeading, Reveal, ease } from '../lib/motion';
+import { apiFetch } from '../lib/api';
 
 function LikeButton({ count, onLike }) {
   const [bursts, setBursts] = useState([]);
@@ -45,14 +46,17 @@ export default function GuestbookSection() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [wishesState, setWishesState] = useState('loading'); // loading | ready | error
 
   const fetchWishes = async () => {
     try {
-      const res = await fetch('/api/guestbook');
+      const res = await apiFetch('/api/guestbook');
       const data = await res.json();
       if (Array.isArray(data)) setMessages(data);
+      setWishesState(res.ok ? 'ready' : 'error');
     } catch (err) {
       console.error('Failed to load guestbook:', err);
+      setWishesState('error');
     }
   };
 
@@ -66,7 +70,7 @@ export default function GuestbookSection() {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await fetch('/api/guestbook', {
+      const res = await apiFetch('/api/guestbook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, message })
@@ -86,7 +90,7 @@ export default function GuestbookSection() {
   const handleLike = async (id) => {
     try {
       setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, likes: (m.likes || 0) + 1 } : m)));
-      await fetch(`/api/guestbook/${id}/like`, { method: 'POST' });
+      await apiFetch(`/api/guestbook/${id}/like`, { method: 'POST' });
     } catch (err) {
       console.error('Failed to like wish:', err);
     }
@@ -119,6 +123,12 @@ export default function GuestbookSection() {
             </div>
           </form>
         </Reveal>
+
+        {wishesState !== 'ready' && messages.length === 0 && (
+          <p className="mt-14 text-center font-serif italic text-lg text-baroque-200/60" role="status">
+            {wishesState === 'loading' ? 'Gathering blessings…' : 'Blessings could not be loaded right now. Please refresh in a moment.'}
+          </p>
+        )}
 
         <div className="mt-14 columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:_balance]">
           <AnimatePresence initial={false}>

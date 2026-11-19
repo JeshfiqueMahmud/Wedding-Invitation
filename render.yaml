@@ -1,21 +1,28 @@
-# Render Blueprint — creates the web service with a persistent disk for the RSVP database.
-# In Render: New → Blueprint → pick this repository.
+# Render Blueprint — the Express API on Render's FREE web service.
+# Render → New → Blueprint → pick this repository. You'll be asked for the values marked sync: false.
+# The website itself is on GitHub Pages; data lives in Supabase, so nothing is lost when this sleeps.
 services:
   - type: web
-    name: wedding-invitation
+    name: wedding-api
     runtime: node
-    plan: starter            # persistent disks need a paid plan; the free plan would wipe RSVPs on restart
-    buildCommand: npm install && npm run build
+    plan: free
+    region: singapore          # closest Render region to Dhaka
+    buildCommand: npm ci --omit=dev
     startCommand: npm start
     healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DB_PATH
-        value: /data/wedding.db
-      - key: ADMIN_PIN
-        sync: false          # Render asks you to type this in; it is never stored in the repo
-    disk:
-      name: wedding-data
-      mountPath: /data
-      sizeGB: 1
+      - key: NODE_VERSION
+        value: "22"
+      - key: ALLOWED_ORIGINS
+        value: https://jeshfiquemahmud.github.io
+      - key: DATABASE_URL        # Supabase → Connect → Session pooler string
+        sync: false
+      - key: SUPABASE_URL        # https://<project-ref>.supabase.co
+        sync: false
+      - key: SUPABASE_SERVICE_KEY # Supabase → Project Settings → API Keys → service_role / secret key
+        sync: false
+      - key: ADMIN_PASSWORD      # the organizer dashboard password
+        sync: false
