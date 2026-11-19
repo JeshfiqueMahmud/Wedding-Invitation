@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
 import Alpana from './Alpana';
-import CameoArt from './CameoArt';
+import CoupleFrame from './CoupleFrame';
 import { Reveal, ScrollWords, SectionHeading, ease } from '../lib/motion';
 
 const VERSE =
@@ -21,7 +21,7 @@ export default function BlessingSection() {
   const sry = useSpring(ry, { stiffness: 140, damping: 16 });
   const glareX = useTransform(sry, [-12, 12], ['20%', '80%']);
   const glareY = useTransform(srx, [12, -12], ['20%', '80%']);
-  const glare = useTransform([glareX, glareY], ([x, y]) => `radial-gradient(circle at ${x} ${y}, rgba(255,240,200,0.55), transparent 55%)`);
+  const glare = useTransform([glareX, glareY], ([x, y]) => `radial-gradient(circle at ${x} ${y}, rgba(255,240,200,0.6), transparent 50%)`);
 
   const onMove = (clientX, clientY) => {
     const r = cameoRef.current?.getBoundingClientRect();
@@ -97,15 +97,9 @@ export default function BlessingSection() {
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 1.3, ease }}
               style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
-              className="relative w-full max-w-[360px] sm:max-w-[420px] select-none"
+              className="relative w-[78%] max-w-[300px] sm:max-w-[330px] mt-8 select-none"
             >
-              <CameoArt className="w-full h-auto drop-shadow-[0_30px_50px_rgba(0,0,0,0.7)]" />
-              {/* moving glare */}
-              <motion.div
-                aria-hidden="true"
-                className="absolute inset-[10%] rounded-[50%] pointer-events-none mix-blend-soft-light"
-                style={{ background: glare }}
-              />
+              <CoupleFrame src="/images/couple.webp" glare={glare} />
             </motion.div>
 
             <motion.span
