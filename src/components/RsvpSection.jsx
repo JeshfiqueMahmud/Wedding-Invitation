@@ -231,7 +231,7 @@ export default function RsvpSection({ onRsvpSubmitted }) {
                   transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
                 />
                 <span className="relative inline-flex items-center gap-3">
-                  {loading ? 'Sending your reply…' : 'Send my reply'}
+                  {loading ? 'Sending your reply…' : 'Send your reply'}
                   {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                 </span>
               </motion.button>
