@@ -41,7 +41,7 @@ export default function BlessingSection() {
   return (
     <section id="blessing" ref={sectionRef} className="relative py-24 sm:py-32 px-5">
       <div className="max-w-5xl mx-auto">
-        <SectionHeading numeral="I." kicker="The Invitation" title="With joyful hearts" />
+        <SectionHeading numeral="I." kicker="The Invitation" title="With Joyful Hearts" />
 
         <div className="grid md:grid-cols-[1.05fr_1fr] gap-14 md:gap-10 items-center">
           {/* words */}
