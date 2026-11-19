@@ -56,7 +56,7 @@ export default function BlessingSection() {
             </Reveal>
 
             <Reveal delay={0.15} className="mt-8 font-serif text-xl sm:text-2xl leading-relaxed text-baroque-200/90">
-              Together with their beloved families, we joyfully invite you to grace the wedding celebrations of
+              We joyfully invite you to grace the wedding celebrations of
             </Reveal>
 
             <div className="mt-6 space-y-1">
