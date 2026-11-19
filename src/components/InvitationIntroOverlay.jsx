@@ -91,14 +91,17 @@ export default function InvitationIntroOverlay({ onOpened, onStartMusic }) {
             transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 1.8 }}
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.94 }}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[34%] aspect-square rounded-full flex flex-col items-center justify-center"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[34%] aspect-square rounded-full flex flex-col items-center justify-center [container-type:inline-size]"
             style={{
               background: 'radial-gradient(circle at 35% 30%, #FFE7AE 0%, #E2A63E 45%, #A8661C 100%)',
               boxShadow: '0 0 0 6px rgba(11,9,23,0.9), 0 0 0 7px rgba(226,166,62,0.5), 0 20px 60px rgba(226,166,62,0.35)'
             }}
           >
-            <span className="font-script text-[2.4rem] sm:text-5xl text-navy-950 leading-none pt-2">J&amp;T</span>
-            <span className="font-bangla text-[10px] sm:text-xs text-navy-950/80 -mt-0.5">শুভ বিবাহ</span>
+            {/* sized in cqw (% of the medallion's width) so the monogram always fits the circle */}
+            <span className="font-serif font-bold text-[28cqw] leading-none text-navy-950 whitespace-nowrap tracking-wide">
+              J <span className="italic font-semibold text-sindoor">&amp;</span> T
+            </span>
+            <span className="font-bangla text-[10cqw] leading-none text-navy-950/80 mt-[5cqw]">শুভ বিবাহ</span>
           </motion.div>
 
           {/* pulse ring inviting a tap */}
