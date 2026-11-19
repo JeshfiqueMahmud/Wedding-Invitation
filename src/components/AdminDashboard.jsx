@@ -11,27 +11,45 @@ export default function AdminDashboard({ isOpen, onClose }) {
   const [filterEvent, setFilterEvent] = useState('all');
   const [loading, setLoading] = useState(false);
 
-  const CORRECT_PIN = '2026';
+  const [pinMessage, setPinMessage] = useState('');
+  const [checking, setChecking] = useState(false);
 
-  const handlePinSubmit = (e) => {
+  // Every admin request carries the PIN; the server decides whether it is correct.
+  const adminFetch = (url, options = {}) =>
+    fetch(url, { ...options, headers: { ...(options.headers || {}), 'x-admin-pin': pin } });
+
+  const handlePinSubmit = async (e) => {
     e.preventDefault();
-    if (pin === CORRECT_PIN || pin === '1225') {
-      setIsAuthenticated(true);
-      setPinError(false);
-      fetchData();
-    } else {
+    if (!pin) return;
+    setChecking(true);
+    try {
+      const res = await adminFetch('/api/admin/verify', { method: 'POST' });
+      if (res.ok) {
+        setIsAuthenticated(true);
+        setPinError(false);
+        fetchData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setPinMessage(data.error || 'Incorrect PIN');
+        setPinError(true);
+        setPin('');
+      }
+    } catch {
+      setPinMessage('Could not reach the server');
       setPinError(true);
-      setPin('');
+    } finally {
+      setChecking(false);
     }
   };
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [rsvpsRes, statsRes] = await Promise.all([
-        fetch('/api/rsvps'),
-        fetch('/api/stats')
-      ]);
+      const [rsvpsRes, statsRes] = await Promise.all([adminFetch('/api/rsvps'), adminFetch('/api/stats')]);
+      if (rsvpsRes.status === 401 || statsRes.status === 401) {
+        setIsAuthenticated(false);
+        return;
+      }
       const rsvpsData = await rsvpsRes.json();
       const statsData = await statsRes.json();
       setRsvps(Array.isArray(rsvpsData) ? rsvpsData : []);
@@ -46,10 +64,28 @@ export default function AdminDashboard({ isOpen, onClose }) {
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Are you sure you want to delete RSVP for ${name}?`)) return;
     try {
-      await fetch(`/api/rsvp/${id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/rsvp/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
       fetchData();
     } catch (err) {
       alert('Delete failed: ' + err.message);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const res = await adminFetch('/api/export-rsvps');
+      if (!res.ok) throw new Error('Export failed');
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Jeshfique_Tamanna_Wedding_RSVP_List.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -92,13 +128,12 @@ export default function AdminDashboard({ isOpen, onClose }) {
               Organizer Passcode
             </h3>
             <p className="font-sans text-xs text-baroque-200/70 mb-5">
-              Enter wedding year or event date (Default: <strong className="text-baroque-300">2026</strong>)
+              Enter the organizer PIN to view guest responses
             </p>
 
             <form onSubmit={handlePinSubmit} className="space-y-3 font-sans">
               <input
                 type="password"
-                maxLength={6}
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 placeholder="Enter PIN"
@@ -106,13 +141,13 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 className="w-full text-center tracking-widest text-lg font-bold px-4 py-2.5 rounded-xl bg-white text-navy-950 focus:outline-none focus:ring-2 focus:ring-baroque-400"
               />
               {pinError && (
-                <p className="text-xs text-red-400">Incorrect PIN. Try 2026</p>
+                <p className="text-xs text-red-400">{pinMessage}</p>
               )}
               <button
                 type="submit"
                 className="w-full py-2.5 rounded-xl bg-baroque-300 hover:bg-baroque-200 active:scale-95 text-navy-950 font-bold text-xs uppercase tracking-wider shadow"
               >
-                Access RSVP Database
+                {checking ? 'Checking…' : 'Access RSVP Database'}
               </button>
             </form>
           </div>
@@ -139,14 +174,14 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 </button>
-                <a
-                  href="/api/export-rsvps"
-                  download="Jeshfique_Tamanna_Wedding_RSVP_List.csv"
+                <button
+                  type="button"
+                  onClick={handleExport}
                   className="px-3 py-1.5 rounded-xl bg-baroque-300 hover:bg-baroque-200 active:scale-95 text-navy-950 text-xs font-bold inline-flex items-center gap-1.5 shadow"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Export CSV</span>
-                </a>
+                </button>
               </div>
             </div>
 

@@ -55,6 +55,17 @@ The entire application is optimized for mobile phones (iOS Safari, Android Chrom
 
 ---
 
+## 🌍 Publishing on Render
+
+The site needs a Node server (for RSVPs and the guestbook), so it is hosted on Render rather than GitHub Pages.
+
+1. Sign in at [render.com](https://render.com) with GitHub.
+2. **New → Blueprint**, choose this repository. Render reads `render.yaml`.
+3. When asked, enter an **ADMIN_PIN**: a long passphrase only the organizers know.
+4. Click **Apply**. Render builds the site and gives you a `*.onrender.com` link. Add a custom domain under **Settings → Custom Domains** if you like.
+
+The blueprint uses the paid *Starter* plan with a 1 GB disk at `/data`, because the RSVP database (`DB_PATH=/data/wedding.db`) must survive restarts. On the free plan, all RSVPs and wishes would be erased whenever the server sleeps or redeploys.
+
 ## 🚀 How to Run
 
 ### Quick Start (Production Build)
@@ -75,11 +86,13 @@ node node_modules\vite\bin\vite.js
 ## 🗄️ Database Schema & API Endpoints
 
 - `GET /api/health` - Server and SQLite database health check
-- `GET /api/rsvps` - Retrieve all RSVPs
+- `GET /api/rsvps` - Retrieve all RSVPs *(admin)*
 - `POST /api/rsvp` - Submit guest attendance confirmation
-- `DELETE /api/rsvp/:id` - Remove an RSVP
-- `GET /api/stats` - RSVP breakdown and attendee analytics
-- `GET /api/export-rsvps` - Download CSV of all RSVPs
+- `DELETE /api/rsvp/:id` - Remove an RSVP *(admin)*
+- `GET /api/stats` - RSVP breakdown and attendee analytics *(admin)*
+- `GET /api/export-rsvps` - Download CSV of all RSVPs *(admin)*
+
+*(admin)* routes require the `x-admin-pin` header to match the server's `ADMIN_PIN` environment variable (defaults to `2026` locally; in production the dashboard stays locked until `ADMIN_PIN` is set). Eight wrong attempts lock that IP out for 15 minutes.
 - `GET /api/guestbook` - Fetch all prayers and wishes
 - `POST /api/guestbook` - Post a new wish
 - `POST /api/guestbook/:id/like` - Upvote a wish's heart counter

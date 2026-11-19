@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 import { querySql, execSql, getDb } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,8 +12,45 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json());
+
+// --------------------------------------------------------------------------
+// ADMIN PROTECTION
+// The organizer PIN lives on the server (ADMIN_PIN env var), never in the browser.
+// Locally it falls back to "2026"; in production an unset ADMIN_PIN locks the dashboard.
+// --------------------------------------------------------------------------
+const ADMIN_PIN = process.env.ADMIN_PIN || (process.env.NODE_ENV === 'production' ? '' : '2026');
+if (!ADMIN_PIN) console.warn('⚠️ ADMIN_PIN is not set — the organizer dashboard is locked.');
+
+const failedAttempts = new Map(); // ip -> { count, until }
+const MAX_FAILS = 8;
+const LOCK_MS = 15 * 60 * 1000;
+
+function pinMatches(given) {
+  if (!ADMIN_PIN || typeof given !== 'string') return false;
+  const a = crypto.createHash('sha256').update(given).digest();
+  const b = crypto.createHash('sha256').update(ADMIN_PIN).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+function requireAdmin(req, res, next) {
+  const ip = req.ip;
+  const entry = failedAttempts.get(ip);
+  if (entry && entry.until > Date.now()) {
+    return res.status(429).json({ error: 'Too many wrong attempts. Try again in 15 minutes.' });
+  }
+  if (pinMatches(req.get('x-admin-pin'))) {
+    failedAttempts.delete(ip);
+    return next();
+  }
+  const count = (entry?.count || 0) + 1;
+  failedAttempts.set(ip, { count, until: count >= MAX_FAILS ? Date.now() + LOCK_MS : 0 });
+  return res.status(401).json({ error: 'Incorrect PIN' });
+}
+
+app.post('/api/admin/verify', requireAdmin, (req, res) => res.json({ ok: true }));
 
 // Serve static public assets like photos
 app.use('/photos', express.static(path.join(__dirname, '..', 'public', 'photos')));
@@ -34,7 +72,7 @@ app.get('/api/health', async (req, res) => {
 // --------------------------------------------------------------------------
 
 // Get all RSVPs
-app.get('/api/rsvps', async (req, res) => {
+app.get('/api/rsvps', requireAdmin, async (req, res) => {
   try {
     const rows = await querySql('SELECT * FROM rsvps ORDER BY id DESC');
     res.json(rows);
@@ -86,7 +124,7 @@ app.post('/api/rsvp', async (req, res) => {
 });
 
 // Delete an RSVP (Admin)
-app.delete('/api/rsvp/:id', async (req, res) => {
+app.delete('/api/rsvp/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await execSql('DELETE FROM rsvps WHERE id = ?', [id]);
@@ -97,7 +135,7 @@ app.delete('/api/rsvp/:id', async (req, res) => {
 });
 
 // Get RSVP Summary Stats for Dashboard
-app.get('/api/stats', async (req, res) => {
+app.get('/api/stats', requireAdmin, async (req, res) => {
   try {
     const all = await querySql('SELECT * FROM rsvps');
     
@@ -145,7 +183,7 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // CSV Export for Organizers & Caterers
-app.get('/api/export-rsvps', async (req, res) => {
+app.get('/api/export-rsvps', requireAdmin, async (req, res) => {
   try {
     const rows = await querySql('SELECT * FROM rsvps ORDER BY id ASC');
 
