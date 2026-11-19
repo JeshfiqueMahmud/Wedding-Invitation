@@ -65,8 +65,12 @@ export default function Navbar({ isAudioPlaying, setIsAudioPlaying, onOpenAdmin 
         className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-4xl"
       >
         <nav className="navy-gold-card rounded-full pl-5 pr-2 py-2 flex items-center justify-between">
-          <a href="#hero" className="font-script text-2xl gold-foil-text leading-none pt-1" aria-label="Back to top">
-            J&amp;T
+          <a
+            href="#hero"
+            className="font-serif font-bold text-2xl sm:text-[1.7rem] leading-none tracking-wide text-baroque-300 whitespace-nowrap px-1 py-1 [text-shadow:0_1px_10px_rgba(243,179,61,0.35)]"
+            aria-label="Back to top"
+          >
+            J <span className="text-holud italic font-semibold">&amp;</span> T
           </a>
 
           <div className="hidden md:flex items-center gap-1">
