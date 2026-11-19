@@ -47,10 +47,10 @@ export default function HeroSection({ ready }) {
     >
       {/* Giant slow-turning alpana */}
       <motion.div
-        className="absolute left-1/2 top-1/2 w-[150vmin] h-[150vmin] -translate-x-1/2 -translate-y-1/2 text-baroque-400 pointer-events-none"
+        className="absolute left-1/2 top-1/2 w-[150vmin] h-[150vmin] -translate-x-1/2 -translate-y-1/2 text-baroque-400 pointer-events-none will-change-transform"
         style={{ scale: mandalaScale, rotate: mandalaRotate, opacity: mandalaOpacity, x: deepX, y: deepY }}
       >
-        <motion.div className="w-full h-full" animate={{ rotate: -360 }} transition={{ duration: 200, repeat: Infinity, ease: 'linear' }}>
+        <motion.div className="w-full h-full will-change-transform" animate={{ rotate: -360 }} transition={{ duration: 200, repeat: Infinity, ease: 'linear' }}>
           {ready && <Alpana className="w-full h-full" duration={3.4} />}
         </motion.div>
       </motion.div>
@@ -102,7 +102,7 @@ export default function HeroSection({ ready }) {
           initial={{ opacity: 0, scaleX: 0.4 }}
           animate={ready ? { opacity: 1, scaleX: 1 } : {}}
           transition={{ duration: 1.2, delay: 1.8, ease }}
-          className="mt-10 sm:mt-12 inline-flex items-stretch rounded-full border border-baroque-400/30 bg-navy-900/60 backdrop-blur-md overflow-hidden"
+          className="mt-10 sm:mt-12 inline-flex items-stretch rounded-full border border-baroque-400/30 bg-navy-900/90 overflow-hidden"
         >
           <a href="#savedate" className="px-4 sm:px-6 py-2.5 text-left hover:bg-holud/10 transition-colors">
             <span className="block font-cinzel text-[9px] tracking-[0.3em] uppercase text-holud">Gaye Holud</span>

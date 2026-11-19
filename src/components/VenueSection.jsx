@@ -32,7 +32,7 @@ const VENUES = {
 
 function Segmented({ value, onChange, options, id }) {
   return (
-    <div className="inline-flex p-1 rounded-full border border-baroque-400/25 bg-navy-900/70 backdrop-blur">
+    <div className="inline-flex p-1 rounded-full border border-baroque-400/25 bg-navy-900/95">
       {options.map(([key, label]) => (
         <button
           key={key}
@@ -78,9 +78,9 @@ export default function VenueSection() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={selected}
-                initial={{ opacity: 0, y: 20, filter: 'blur(6px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, y: -20, filter: 'blur(6px)' }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5, ease }}
               >
                 <p className={`font-cinzel text-[10px] tracking-[0.3em] uppercase ${selected === 'holud' ? 'text-holud' : 'text-baroque-300'}`}>

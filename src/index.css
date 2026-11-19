@@ -42,14 +42,24 @@ body {
   background-color: #0B0917;
   color: #F2E3C7;
   font-family: var(--font-serif);
+  overflow-x: clip;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Night-sky glow. A fixed layer (not background-attachment: fixed) so the
+   browser composites it once instead of repainting the whole page on scroll. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background-image:
     radial-gradient(ellipse 90% 60% at 50% -10%, rgba(226, 166, 62, 0.13), transparent 60%),
     radial-gradient(ellipse 70% 50% at 100% 40%, rgba(201, 67, 47, 0.07), transparent 60%),
     radial-gradient(ellipse 70% 50% at 0% 80%, rgba(78, 122, 88, 0.07), transparent 60%);
-  background-attachment: fixed;
-  overflow-x: clip;
-  width: 100%;
-  min-height: 100vh;
+  transform: translateZ(0);
 }
 
 /* Film grain over everything — gives the ink a paper-like tooth */
@@ -59,8 +69,8 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 60;
-  opacity: 0.07;
-  mix-blend-mode: overlay;
+  opacity: 0.035;
+  transform: translateZ(0);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -118,9 +128,7 @@ button, a, input, select, textarea {
 
 /* Ink glass card (also used by the organizer dashboard) */
 .navy-gold-card {
-  background: linear-gradient(180deg, rgba(35, 29, 64, 0.72) 0%, rgba(18, 15, 34, 0.9) 100%);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(35, 29, 64, 0.92) 0%, rgba(18, 15, 34, 0.97) 100%);
   border: 1px solid rgba(226, 166, 62, 0.22);
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 246, 226, 0.05);
 }

@@ -36,7 +36,7 @@ function Row({ children, baseVelocity = 2, className = '' }) {
 
   return (
     <div className="overflow-hidden whitespace-nowrap flex">
-      <motion.div className={`flex whitespace-nowrap ${className}`} style={{ x, skewX: skew }}>
+      <motion.div className={`flex whitespace-nowrap will-change-transform ${className}`} style={{ x, skewX: skew }}>
         {[0, 1, 2, 3].map((i) => (
           <span key={i} className="block pr-8">{children}</span>
         ))}
@@ -54,7 +54,7 @@ export default function Marquee() {
           Gaye Holud <Dot /> twenty-fifth December <Dot /> Wedding Reception <Dot /> twenty-seventh December <Dot /> Dhaka <Dot />
         </Row>
       </div>
-      <div className="border-y border-baroque-400/25 py-2.5 sm:py-3 rotate-[3deg] -mt-1 bg-navy-950/80 backdrop-blur-sm">
+      <div className="border-y border-baroque-400/25 py-2.5 sm:py-3 rotate-[3deg] -mt-1 bg-navy-950/95">
         <Row baseVelocity={2} className="font-cinzel text-xs sm:text-sm tracking-[0.4em] uppercase text-baroque-300">
           Jeshfique &amp; Tamanna <span className="mx-6 text-sindoor">✦</span> শুভ বিবাহ <span className="mx-6 text-sindoor">✦</span> Two evenings · One forever <span className="mx-6 text-sindoor">✦</span>
         </Row>

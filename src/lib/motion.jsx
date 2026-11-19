@@ -3,13 +3,13 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 export const ease = [0.22, 1, 0.36, 1];
 
-/** Fades + rises + un-blurs its children when scrolled into view. */
+/** Fades + rises its children when scrolled into view. */
 export function Reveal({ children, delay = 0, y = 36, x = 0, className = '', once = true, ...rest }) {
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y, x, filter: 'blur(10px)' }}
-      whileInView={{ opacity: 1, y: 0, x: 0, filter: 'blur(0px)' }}
+      initial={{ opacity: 0, y, x }}
+      whileInView={{ opacity: 1, y: 0, x: 0 }}
       viewport={{ once, margin: '-60px' }}
       transition={{ duration: 1, delay, ease }}
       {...rest}
@@ -36,7 +36,7 @@ export function SplitText({ text, className = '', delay = 0, stagger = 0.035, in
             return (
               <motion.span
                 key={i}
-                className="inline-block will-change-transform"
+                className="inline-block"
                 variants={{
                   hidden: { y: '115%', rotate: 8 },
                   show: { y: '0%', rotate: 0, transition: { duration: 0.9, ease, delay: delay + i * stagger } }

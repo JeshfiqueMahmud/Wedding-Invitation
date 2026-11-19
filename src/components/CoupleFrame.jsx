@@ -78,7 +78,8 @@ export default function CoupleFrame({ src, glare }) {
       {/* soft marigold aura behind the frame */}
       <motion.div
         aria-hidden="true"
-        className={`absolute -inset-6 ${ARCH} bg-holud/25 blur-3xl`}
+        className={`absolute -inset-10 ${ARCH} will-change-[opacity]`}
+        style={{ background: 'radial-gradient(ellipse at center, rgba(243,179,61,0.28) 35%, transparent 72%)' }}
         animate={{ opacity: [0.45, 0.8, 0.45] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
       />
@@ -99,8 +100,8 @@ export default function CoupleFrame({ src, glare }) {
                   alt="Illustration of Jeshfique and Tamanna holding hands in a flower garden"
                   draggable={false}
                   className="absolute inset-0 w-full h-full object-cover object-[50%_40%]"
-                  initial={{ scale: 1.25, filter: 'blur(12px) saturate(0.6)' }}
-                  whileInView={{ scale: 1.04, filter: 'blur(0px) saturate(1)' }}
+                  initial={{ scale: 1.25, opacity: 0 }}
+                  whileInView={{ scale: 1.04, opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 2.2, ease }}
                 />
