@@ -1,70 +1,135 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
+import Alpana from './Alpana';
+import CameoArt from './CameoArt';
+import { Reveal, ScrollWords, SectionHeading, ease } from '../lib/motion';
+
+const VERSE =
+  '“And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.”';
 
 export default function BlessingSection() {
+  const cameoRef = useRef(null);
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
+  const haloRotate = useTransform(scrollYProgress, [0, 1], [-60, 60]);
+  const cameoY = useTransform(scrollYProgress, [0, 1], [60, -60]);
+
+  // spring tilt on the portrait
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const srx = useSpring(rx, { stiffness: 140, damping: 16 });
+  const sry = useSpring(ry, { stiffness: 140, damping: 16 });
+  const glareX = useTransform(sry, [-12, 12], ['20%', '80%']);
+  const glareY = useTransform(srx, [12, -12], ['20%', '80%']);
+  const glare = useTransform([glareX, glareY], ([x, y]) => `radial-gradient(circle at ${x} ${y}, rgba(255,240,200,0.55), transparent 55%)`);
+
+  const onMove = (clientX, clientY) => {
+    const r = cameoRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const x = (clientX - r.left) / r.width - 0.5;
+    const y = (clientY - r.top) / r.height - 0.5;
+    ry.set(x * 22);
+    rx.set(y * -22);
+  };
+  const reset = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
   return (
-    <section id="blessing" className="relative py-10 sm:py-14 px-3 sm:px-8 text-center">
-      {/* Side Baroque Corner Sprays (Hidden on mobile) */}
-      <svg
-        className="w-16 h-28 absolute left-0 top-10 opacity-75 pointer-events-none hidden md:block"
-        viewBox="0 0 80 140"
-        fill="none"
-      >
-        <circle cx="22" cy="45" r="14" fill="url(#navyRoseGrad)" stroke="#D4AF37" strokeWidth="0.9" />
-        <circle cx="34" cy="74" r="11" fill="url(#ivoryRoseGrad)" stroke="#B88924" strokeWidth="0.9" />
-        <circle cx="20" cy="100" r="13" fill="url(#navyRoseGrad)" stroke="#D4AF37" strokeWidth="0.9" />
-        <path d="M12 20 C35 35, 45 65, 25 120" stroke="url(#baroqueGold)" strokeWidth="1.2" fill="none" />
-      </svg>
-      <svg
-        className="w-16 h-28 absolute right-0 top-10 opacity-75 pointer-events-none hidden md:block scale-x-[-1]"
-        viewBox="0 0 80 140"
-        fill="none"
-      >
-        <circle cx="22" cy="45" r="14" fill="url(#navyRoseGrad)" stroke="#D4AF37" strokeWidth="0.9" />
-        <circle cx="34" cy="74" r="11" fill="url(#ivoryRoseGrad)" stroke="#B88924" strokeWidth="0.9" />
-        <circle cx="20" cy="100" r="13" fill="url(#navyRoseGrad)" stroke="#D4AF37" strokeWidth="0.9" />
-        <path d="M12 20 C35 35, 45 65, 25 120" stroke="url(#baroqueGold)" strokeWidth="1.2" fill="none" />
-      </svg>
+    <section id="blessing" ref={sectionRef} className="relative py-24 sm:py-32 px-5">
+      <div className="max-w-5xl mx-auto">
+        <SectionHeading numeral="I." kicker="The Invitation" title="With joyful hearts" />
 
-      <p className="font-cinzel text-[10px] sm:text-xs leading-[2] tracking-[0.18em] sm:tracking-[0.2em] uppercase text-baroque-200/90 max-w-md mx-auto">
-        In the name of Allah, the Most Gracious, the Most Merciful.
-        <br />
-        Together with their beloved families, we joyfully invite you to grace the wedding celebrations of
-      </p>
+        <div className="grid md:grid-cols-[1.05fr_1fr] gap-14 md:gap-10 items-center">
+          {/* words */}
+          <div className="text-center md:text-left order-2 md:order-1">
+            <Reveal>
+              <p className="font-arabic text-3xl sm:text-4xl text-holud leading-relaxed" dir="rtl" lang="ar">
+                بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
+              </p>
+              <p className="font-cinzel text-[10px] tracking-[0.3em] uppercase text-baroque-300/70 mt-2">
+                In the name of Allah, the Most Gracious, the Most Merciful
+              </p>
+            </Reveal>
 
-      {/* Small Gold Fleur Divider */}
-      <div className="my-4 sm:my-5 text-baroque-400 text-sm">❖</div>
+            <Reveal delay={0.15} className="mt-8 font-serif text-xl sm:text-2xl leading-relaxed text-baroque-200/90">
+              Together with their beloved families, we joyfully invite you to grace the wedding celebrations of
+            </Reveal>
 
-      {/* Script Couple Names (Mobile responsive typography) */}
-      <div className="space-y-1 sm:space-y-2 my-4 sm:my-6">
-        <h3 className="font-script text-3xl xs:text-4xl sm:text-6xl gold-foil-text py-0.5 sm:py-1 leading-tight">
-          Jeshfique Mahmud
-        </h3>
-        <p className="font-cinzel text-[10px] tracking-[0.35em] uppercase text-baroque-300/75">
-          with
-        </p>
-        <h3 className="font-script text-3xl xs:text-4xl sm:text-6xl gold-foil-text py-0.5 sm:py-1 leading-tight">
-          Faheema Shaheed Tamanna
-        </h3>
-      </div>
+            <div className="mt-6 space-y-1">
+              <Reveal delay={0.25} x={-30} y={0}>
+                <p className="font-script text-5xl sm:text-6xl gold-foil-text leading-[1.3]">Jeshfique Mahmud</p>
+              </Reveal>
+              <Reveal delay={0.35}>
+                <p className="font-cinzel text-[10px] tracking-[0.5em] uppercase text-baroque-400/80 md:pl-3">with</p>
+              </Reveal>
+              <Reveal delay={0.45} x={30} y={0}>
+                <p className="font-script text-5xl sm:text-6xl gold-foil-text leading-[1.3]">Faheema Shaheed Tamanna</p>
+              </Reveal>
+            </div>
 
-      <p className="font-serif italic text-xs sm:text-base text-baroque-200/80 max-w-sm mx-auto mt-3 sm:mt-4 px-2">
-        “And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.”
-      </p>
-      <p className="font-cinzel text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-baroque-400/80 mt-1">
-        — Surah Ar-Rum [30:21]
-      </p>
+            <div className="mt-10 pl-0 md:pl-6 md:border-l border-dashed border-baroque-400/40">
+              <ScrollWords text={VERSE} className="font-serif italic text-lg sm:text-xl leading-relaxed text-baroque-100" />
+              <Reveal className="font-cinzel text-[10px] tracking-[0.3em] uppercase text-baroque-400 mt-3">
+                — Surah Ar-Rum · 30:21
+              </Reveal>
+            </div>
+          </div>
 
-      {/* Ornamental Gold Floral Divider */}
-      <div className="mt-6 sm:mt-8 flex items-center justify-center">
-        <svg className="w-40 sm:w-48 h-7 sm:h-8" viewBox="0 0 240 36" fill="none">
-          <path d="M10 18 L92 18 M148 18 L230 18" stroke="url(#baroqueGold)" strokeWidth="1" opacity="0.75" />
-          <path
-            d="M95 18 C105 6, 114 8, 120 18 C126 8, 135 6, 145 18 C135 30, 126 28, 120 18 C114 28, 105 30, 95 18 Z"
-            fill="url(#baroqueGold)"
-          />
-          <circle cx="120" cy="18" r="3" fill="#061226" />
-        </svg>
+          {/* portrait */}
+          <motion.div style={{ y: cameoY }} className="relative order-1 md:order-2 flex justify-center">
+            <motion.div
+              aria-hidden="true"
+              style={{ rotate: haloRotate }}
+              className="absolute inset-[-12%] text-baroque-400/30 pointer-events-none"
+            >
+              <Alpana className="w-full h-full" inView duration={2.8} />
+            </motion.div>
+
+            <motion.div
+              ref={cameoRef}
+              onPointerMove={(e) => onMove(e.clientX, e.clientY)}
+              onPointerLeave={reset}
+              onTouchEnd={reset}
+              initial={{ opacity: 0, scale: 0.85, rotate: -4 }}
+              whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 1.3, ease }}
+              style={{ rotateX: srx, rotateY: sry, transformPerspective: 900 }}
+              className="relative w-full max-w-[360px] sm:max-w-[420px] select-none"
+            >
+              <CameoArt className="w-full h-auto drop-shadow-[0_30px_50px_rgba(0,0,0,0.7)]" />
+              {/* moving glare */}
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-[10%] rounded-[50%] pointer-events-none mix-blend-soft-light"
+                style={{ background: glare }}
+              />
+            </motion.div>
+
+            <motion.span
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.6, duration: 1, ease }}
+              className="absolute left-0 sm:-left-2 bottom-6 font-cinzel text-[9px] tracking-[0.35em] uppercase text-baroque-300/80 [writing-mode:vertical-rl] rotate-180"
+            >
+              The Groom
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.7, duration: 1, ease }}
+              className="absolute right-0 sm:-right-2 top-6 font-cinzel text-[9px] tracking-[0.35em] uppercase text-baroque-300/80 [writing-mode:vertical-rl]"
+            >
+              The Bride
+            </motion.span>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
+

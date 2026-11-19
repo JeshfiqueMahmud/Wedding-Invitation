@@ -6,7 +6,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DB_FILE = path.join(__dirname, 'wedding.db');
+// On a host, point DB_PATH at a persistent disk/volume (e.g. /data/wedding.db) so RSVPs survive restarts.
+const DB_FILE = process.env.DB_PATH || path.join(__dirname, 'wedding.db');
+fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
 const WASM_FILE = path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm');
 
 let db = null;

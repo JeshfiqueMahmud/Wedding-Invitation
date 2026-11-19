@@ -2,7 +2,7 @@
 
 A luxury full-stack React & Node.js web application for the wedding celebration of **Jeshfique Mahmud & Faheema Shaheed Tamanna**.
 
-Designed with deep midnight royal navy and baroque gold foil aesthetics, complete with an **integrated SQLite database** for guest RSVPs and guestbook wishes, high-performance mobile responsiveness, 3D Coverflow photo gallery, live Dhaka countdown, ambient Web Audio raga synthesizer, and a complete RSVP Organizer Dashboard with 1-click CSV export.
+Designed around a "Midnight Alpana" concept — ink-black night, marigold holud and ivory, with a self-drawing Bengali alpana mandala and scroll-driven Framer Motion choreography throughout — complete with an **integrated SQLite database** for guest RSVPs and guestbook wishes, high-performance mobile responsiveness, scroll-driven horizontal photo gallery with shared-element lightbox, live Dhaka countdown, ambient Web Audio raga synthesizer, and a complete RSVP Organizer Dashboard with 1-click CSV export.
 
 ---
 

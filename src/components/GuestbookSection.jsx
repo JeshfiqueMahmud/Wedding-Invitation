@@ -1,5 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Send, MessageSquare } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Send } from 'lucide-react';
+import { SectionHeading, Reveal, ease } from '../lib/motion';
+
+function LikeButton({ count, onLike }) {
+  const [bursts, setBursts] = useState([]);
+  const click = () => {
+    const id = Date.now();
+    setBursts((b) => [...b, id]);
+    setTimeout(() => setBursts((b) => b.filter((x) => x !== id)), 900);
+    onLike();
+  };
+  return (
+    <motion.button
+      type="button"
+      whileTap={{ scale: 0.8 }}
+      onClick={click}
+      className="relative inline-flex items-center gap-1.5 py-1 px-3 rounded-full border border-baroque-400/20 text-xs text-baroque-300/90 hover:text-sindoor hover:border-sindoor/40 transition-colors cursor-pointer"
+      title="Send love"
+    >
+      <Heart className="w-3.5 h-3.5 text-sindoor fill-sindoor/30" />
+      <span className="font-sans tabular-nums">{count}</span>
+      <AnimatePresence>
+        {bursts.map((id) => (
+          <motion.span
+            key={id}
+            initial={{ y: 0, opacity: 1, scale: 0.6 }}
+            animate={{ y: -40, opacity: 0, scale: 1.4 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
+            className="absolute left-2 -top-1 pointer-events-none"
+          >
+            <Heart className="w-4 h-4 text-sindoor fill-sindoor" />
+          </motion.span>
+        ))}
+      </AnimatePresence>
+    </motion.button>
+  );
+}
 
 export default function GuestbookSection() {
   const [messages, setMessages] = useState([]);
@@ -12,9 +50,7 @@ export default function GuestbookSection() {
     try {
       const res = await fetch('/api/guestbook');
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setMessages(data);
-      }
+      if (Array.isArray(data)) setMessages(data);
     } catch (err) {
       console.error('Failed to load guestbook:', err);
     }
@@ -27,10 +63,8 @@ export default function GuestbookSection() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !message.trim()) return;
-
     setLoading(true);
     setErrorMsg('');
-
     try {
       const res = await fetch('/api/guestbook', {
         method: 'POST',
@@ -38,9 +72,7 @@ export default function GuestbookSection() {
         body: JSON.stringify({ name, message })
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || 'Failed to submit prayer');
-
       setName('');
       setMessage('');
       fetchWishes();
@@ -53,87 +85,64 @@ export default function GuestbookSection() {
 
   const handleLike = async (id) => {
     try {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, likes: (m.likes || 0) + 1 } : m))
-      );
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, likes: (m.likes || 0) + 1 } : m)));
       await fetch(`/api/guestbook/${id}/like`, { method: 'POST' });
     } catch (err) {
       console.error('Failed to like wish:', err);
     }
   };
 
+  const inputCls =
+    'w-full bg-navy-950/50 border border-baroque-400/20 rounded-2xl px-4 py-3 font-serif text-lg text-baroque-100 placeholder:text-baroque-300/35 focus:outline-none focus:border-holud transition-colors';
+
   return (
-    <section id="guestbook" className="py-10 sm:py-14 px-2 sm:px-6 text-center">
-      <h2 className="font-cinzel text-sm sm:text-base tracking-[0.28em] uppercase text-baroque-300 mb-1.5 sm:mb-2 font-semibold">
-        Wedding Guestbook
-      </h2>
-      <p className="font-serif italic text-xs sm:text-sm text-baroque-200/70 max-w-sm mx-auto mb-5 sm:mb-6 px-3">
-        Leave your prayers, heartfelt wishes, and love for Jeshfique &amp; Faheema
-      </p>
+    <section id="guestbook" className="relative py-24 sm:py-32 px-4 sm:px-5">
+      <div className="max-w-5xl mx-auto">
+        <SectionHeading numeral="VII." kicker="Duas & Wishes" title="Leave us a blessing" sub="Every prayer here will be read, and kept, by Jeshfique & Tamanna." />
 
-      {/* Submission Form (Mobile font-size 16px to prevent auto-zoom) */}
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-3 text-left font-sans">
-        {errorMsg && (
-          <p className="text-xs text-red-400 text-center">{errorMsg}</p>
-        )}
-        <input
-          type="text"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your full name"
-          className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950/80 border border-baroque-400/40 text-baroque-100 placeholder-baroque-300/45 text-base sm:text-xs focus:outline-none focus:border-baroque-300 shadow-inner"
-        />
-
-        <textarea
-          rows={3}
-          required
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Write your dua, prayer, or warm blessings for the couple..."
-          className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950/80 border border-baroque-400/40 text-baroque-100 placeholder-baroque-300/45 text-base sm:text-xs focus:outline-none focus:border-baroque-300 shadow-inner resize-none"
-        />
-
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl sm:rounded-full bg-baroque-300 hover:bg-baroque-200 active:scale-95 text-navy-950 font-bold text-xs tracking-wider uppercase shadow-md transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>{loading ? 'Sending...' : 'Send Blessings'}</span>
-          </button>
-        </div>
-      </form>
-
-      {/* Messages List */}
-      <div className="max-w-md mx-auto mt-6 sm:mt-8 space-y-3 text-left">
-        {messages.map((entry) => (
-          <div
-            key={entry.id}
-            className="navy-gold-card rounded-2xl p-3.5 sm:p-4 border border-baroque-400/30 hover:border-baroque-400/60 transition-colors"
-          >
-            <p className="font-serif italic text-xs sm:text-sm text-baroque-100 leading-relaxed">
-              “{entry.message}”
-            </p>
-
-            <div className="mt-2.5 pt-2 border-t border-baroque-400/20 flex items-center justify-between text-xs font-sans">
-              <span className="font-cinzel text-[10px] tracking-widest uppercase text-baroque-400 font-bold">
-                — {entry.name}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => handleLike(entry.id)}
-                className="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-navy-900/60 border border-baroque-400/25 text-[11px] text-baroque-300/90 hover:text-red-400 transition-colors cursor-pointer group active:scale-95"
-                title="Send heart reaction"
+        <Reveal>
+          <form onSubmit={handleSubmit} className="max-w-xl mx-auto space-y-3">
+            {errorMsg && <p className="text-sm text-sindoor text-center font-sans">{errorMsg}</p>}
+            <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className={inputCls} />
+            <textarea rows={3} required value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your dua, prayer or warm wishes…" className={`${inputCls} resize-none`} />
+            <div className="flex justify-end">
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-holud text-navy-950 font-cinzel text-[11px] tracking-[0.25em] uppercase disabled:opacity-60 cursor-pointer"
               >
-                <Heart className="w-3.5 h-3.5 group-hover:scale-125 transition-transform fill-red-400/20 text-red-400" />
-                <span>{entry.likes || 0}</span>
-              </button>
+                <Send className="w-3.5 h-3.5" />
+                {loading ? 'Sending…' : 'Send blessing'}
+              </motion.button>
             </div>
-          </div>
-        ))}
+          </form>
+        </Reveal>
+
+        <div className="mt-14 columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:_balance]">
+          <AnimatePresence initial={false}>
+            {messages.map((entry, i) => (
+              <motion.figure
+                key={entry.id}
+                initial={{ opacity: 0, y: 40, rotate: i % 2 ? 2 : -2 }}
+                whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+                viewport={{ once: true }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.7, ease, delay: (i % 3) * 0.08 }}
+                whileHover={{ y: -4 }}
+                className="break-inside-avoid mb-5 navy-gold-card rounded-3xl p-6"
+              >
+                <span className="font-serif text-5xl leading-none text-holud/60">“</span>
+                <blockquote className="font-serif italic text-lg text-baroque-100 leading-relaxed -mt-4">{entry.message}</blockquote>
+                <figcaption className="mt-5 pt-4 border-t border-dashed border-baroque-400/20 flex items-center justify-between gap-3">
+                  <span className="font-cinzel text-[10px] tracking-[0.25em] uppercase text-baroque-400">— {entry.name}</span>
+                  <LikeButton count={entry.likes || 0} onLike={() => handleLike(entry.id)} />
+                </figcaption>
+              </motion.figure>
+            ))}
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );

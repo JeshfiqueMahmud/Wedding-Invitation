@@ -168,7 +168,7 @@ app.get('/api/export-rsvps', async (req, res) => {
     }
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="Jeshfique_Faheema_Wedding_RSVP_List.csv"');
+    res.setHeader('Content-Disposition', 'attachment; filename="Jeshfique_Tamanna_Wedding_RSVP_List.csv"');
     res.send(csvLines.join('\r\n'));
   } catch (err) {
     res.status(500).json({ error: 'Failed to export CSV: ' + err.message });

@@ -1,85 +1,71 @@
+import { createPortal } from 'react-dom';
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, QrCode, Download, Printer, X, Sparkles, Share2 } from 'lucide-react';
+import { Printer, X, Share2, Minus, Plus, ArrowRight } from 'lucide-react';
+import { SectionHeading, ease } from '../lib/motion';
+import Alpana from './Alpana';
+
+const EMPTY = { name: '', phone: '', email: '', attendance: 'both', guests_count: 1, dietary: '', message: '' };
+
+const OPTIONS = [
+  { value: 'both', label: 'Joyfully attending both', detail: '25 & 27 December' },
+  { value: 'holud', label: 'Gaye Holud only', detail: '25 Dec · Eagle Hall' },
+  { value: 'reception', label: 'Reception only', detail: '27 Dec · SKS Hall' },
+  { value: 'unable', label: 'Regretfully absent', detail: 'Sending warm wishes' }
+];
+
+function Field({ id, label, children }) {
+  return (
+    <div className="group">
+      <label htmlFor={id} className="block font-cinzel text-[10px] tracking-[0.25em] uppercase text-navy-950/60 mb-1 group-focus-within:text-sindoor transition-colors">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+const inputCls =
+  'w-full bg-transparent border-0 border-b border-navy-950/25 px-0 py-2 font-serif text-xl text-navy-950 placeholder:text-navy-950/30 focus:outline-none focus:border-sindoor transition-colors';
 
 export default function RsvpSection({ onRsvpSubmitted }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    attendance: 'both',
-    guests_count: 1,
-    dietary: '',
-    message: ''
-  });
-
+  const [formData, setFormData] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
   const [confirmedPass, setConfirmedPass] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const attendanceOptions = [
-    { value: 'both', label: 'Yes, I will attend both events (25 & 27 Dec)' },
-    { value: 'holud', label: 'Gaye Holud only (25th Dec, Eagle Hall)' },
-    { value: 'reception', label: 'Reception only (27th Dec, SKS Hall)' },
-    { value: 'unable', label: 'Unable to attend (sending warm wishes)' }
-  ];
+  const set = (k) => (e) => setFormData({ ...formData, [k]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
-
     if (!formData.name.trim()) {
       setErrorMsg('Please enter your full name');
       return;
     }
-
     setLoading(true);
-
     try {
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to submit RSVP');
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to submit RSVP');
-      }
+      const colors = ['#F3B33D', '#E0861C', '#C9432F', '#F7EFE1'];
+      confetti({ particleCount: 90, spread: 80, origin: { x: 0.2, y: 0.7 }, angle: 60, colors });
+      confetti({ particleCount: 90, spread: 80, origin: { x: 0.8, y: 0.7 }, angle: 120, colors });
 
-      // Golden confetti celebration explosion
-      confetti({
-        particleCount: 85,
-        spread: 75,
-        origin: { y: 0.6 },
-        colors: ['#D4AF37', '#F5E4B8', '#B88924', '#FFFFFF']
-      });
-
-      // Show digital VIP invitation pass
       setConfirmedPass(data.entry);
-
       if (onRsvpSubmitted) onRsvpSubmitted();
-
-      // Reset form
-      setFormData({
-        name: '',
-        phone: '',
-        email: '',
-        attendance: 'both',
-        guests_count: 1,
-        dietary: '',
-        message: ''
-      });
+      setFormData(EMPTY);
     } catch (err) {
       setErrorMsg(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   const handleShareWhatsApp = () => {
@@ -92,299 +78,246 @@ export default function RsvpSection({ onRsvpSubmitted }) {
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
+  const attending = formData.attendance !== 'unable';
+
   return (
-    <section id="rsvp" className="py-10 sm:py-14 px-2 sm:px-6">
-      <div className="frosted-rsvp-card max-w-md mx-auto rounded-2xl sm:rounded-3xl p-4 sm:p-8 text-white relative overflow-hidden">
-        {/* Ornate corner flourish */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-baroque-400/20 to-transparent pointer-events-none rounded-bl-full" />
+    <section id="rsvp" className="relative py-24 sm:py-32 px-4 sm:px-5">
+      <div className="max-w-3xl mx-auto">
+        <SectionHeading numeral="V." kicker="Kindly Reply" title="Will you be there?" sub="We would be honoured — please respond by 10 December 2026." />
 
-        <div className="text-center mb-5 sm:mb-6">
-          <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-[10px] font-sans tracking-widest uppercase text-baroque-200 mb-2 font-semibold">
-            RSVP Confirmation
-          </span>
-          <h2 className="font-sans text-xl sm:text-3xl font-bold text-white mb-1">
-            Confirm Your Attendance
-          </h2>
-          <p className="font-sans text-xs text-white/85">
-            Kindly respond by 10th December 2026 to help us welcome you
-          </p>
-        </div>
-
-        {errorMsg && (
-          <div className="mb-4 p-3 rounded-xl bg-red-900/80 border border-red-500/50 text-white text-xs text-center">
-            {errorMsg}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4 font-sans text-left">
-          {/* Full Name */}
-          <div>
-            <label htmlFor="rsvpName" className="block text-xs font-semibold text-white/95 mb-1">
-              Full Name *
-            </label>
-            <input
-              id="rsvpName"
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="e.g. Dr. Kazi Nazmul / Sabrina Khan"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white text-slate-900 placeholder-slate-400 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-baroque-400 shadow-inner"
-            />
+        <motion.div
+          initial={{ opacity: 0, y: 80, rotate: 2 }}
+          whileInView={{ opacity: 1, y: 0, rotate: -0.6 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 1.1, ease }}
+          className="stitch relative frosted-rsvp-card text-sindoor rounded-[2rem] px-5 py-10 sm:p-14 overflow-hidden shadow-[0_50px_100px_-30px_rgba(0,0,0,0.9)]"
+        >
+          {/* corner mandala watermark */}
+          <div aria-hidden="true" className="absolute -right-24 -top-24 w-72 h-72 text-holud/40 pointer-events-none">
+            <Alpana className="w-full h-full" inView duration={3} />
           </div>
 
-          {/* Contact: Phone & Email */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-            <div>
-              <label htmlFor="rsvpPhone" className="block text-xs font-medium text-white/95 mb-1">
-                Phone Number
-              </label>
-              <input
-                id="rsvpPhone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+880 17..."
-                className="w-full px-3 py-2 rounded-xl bg-white text-slate-900 placeholder-slate-400 text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-baroque-400"
-              />
-            </div>
-            <div>
-              <label htmlFor="rsvpEmail" className="block text-xs font-medium text-white/95 mb-1">
-                Email Address
-              </label>
-              <input
-                id="rsvpEmail"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="name@example.com"
-                className="w-full px-3 py-2 rounded-xl bg-white text-slate-900 placeholder-slate-400 text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-baroque-400"
-              />
-            </div>
-          </div>
+          <div className="relative text-navy-950">
+            <p className="font-bangla text-2xl sm:text-3xl text-sindoor">আপনার উপস্থিতি একান্ত কাম্য</p>
+            <p className="font-serif italic text-lg text-navy-950/60 mt-1">Your presence is our greatest gift.</p>
 
-          {/* Attendance Radio Cards */}
-          <div>
-            <label className="block text-xs font-semibold text-white/95 mb-1.5">
-              Will you grace our celebrations? *
-            </label>
-            <div className="space-y-2">
-              {attendanceOptions.map((opt) => (
-                <label
-                  key={opt.value}
-                  className={`flex items-center gap-2.5 sm:gap-3 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border cursor-pointer transition-all active:scale-[0.98] ${
-                    formData.attendance === opt.value
-                      ? 'bg-white/40 border-baroque-300 shadow-md ring-1 ring-baroque-300'
-                      : 'bg-white/20 border-white/25 hover:bg-white/30'
-                  }`}
+            <AnimatePresence>
+              {errorMsg && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto', x: [0, -8, 8, -4, 4, 0] }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-4 font-sans text-sm text-sindoor"
                 >
-                  <input
-                    type="radio"
-                    name="rsvpAttendance"
-                    value={opt.value}
-                    checked={formData.attendance === opt.value}
-                    onChange={(e) => setFormData({ ...formData, attendance: e.target.value })}
-                    className="accent-navy-950 w-4 h-4 cursor-pointer shrink-0"
-                  />
-                  <span className="text-xs sm:text-sm font-medium text-white leading-snug">
-                    {opt.label}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
+                  {errorMsg}
+                </motion.p>
+              )}
+            </AnimatePresence>
 
-          {/* Party Count (Only if attending) */}
-          {formData.attendance !== 'unable' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center pt-1">
-              <div>
-                <label className="block text-xs font-medium text-white/95 mb-1">
-                  Total Attendees
-                </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({
-                        ...formData,
-                        guests_count: Math.max(1, formData.guests_count - 1)
-                      })
-                    }
-                    className="w-10 h-10 rounded-xl bg-white/30 hover:bg-white/40 active:scale-95 text-white font-bold flex items-center justify-center text-base"
-                    aria-label="Decrease attendee count"
-                  >
-                    -
-                  </button>
-                  <span className="w-10 text-center font-bold text-base text-white">
-                    {formData.guests_count}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData({
-                        ...formData,
-                        guests_count: Math.min(10, formData.guests_count + 1)
-                      })
-                    }
-                    className="w-10 h-10 rounded-xl bg-white/30 hover:bg-white/40 active:scale-95 text-white font-bold flex items-center justify-center text-base"
-                    aria-label="Increase attendee count"
-                  >
-                    +
-                  </button>
+            <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+              <Field id="rsvpName" label="Your full name *">
+                <input id="rsvpName" type="text" required value={formData.name} onChange={set('name')} placeholder="e.g. Sabrina Khan" className={inputCls} />
+              </Field>
+
+              <div className="grid sm:grid-cols-2 gap-8">
+                <Field id="rsvpPhone" label="Phone">
+                  <input id="rsvpPhone" type="tel" value={formData.phone} onChange={set('phone')} placeholder="+880 17…" className={inputCls} />
+                </Field>
+                <Field id="rsvpEmail" label="Email">
+                  <input id="rsvpEmail" type="email" value={formData.email} onChange={set('email')} placeholder="name@example.com" className={inputCls} />
+                </Field>
+              </div>
+
+              <fieldset>
+                <legend className="font-cinzel text-[10px] tracking-[0.25em] uppercase text-navy-950/60 mb-3">Will you grace our celebrations? *</legend>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {OPTIONS.map((opt) => {
+                    const active = formData.attendance === opt.value;
+                    return (
+                      <label key={opt.value} className="relative cursor-pointer rounded-2xl px-4 py-3.5 border border-navy-950/15 hover:border-navy-950/40 transition-colors">
+                        {active && (
+                          <motion.span
+                            layoutId="rsvp-choice"
+                            className="absolute inset-0 rounded-2xl bg-navy-950"
+                            transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                          />
+                        )}
+                        <input
+                          type="radio"
+                          name="rsvpAttendance"
+                          value={opt.value}
+                          checked={active}
+                          onChange={set('attendance')}
+                          className="sr-only"
+                        />
+                        <span className={`relative block font-serif text-lg leading-tight transition-colors ${active ? 'text-holud' : 'text-navy-950'}`}>{opt.label}</span>
+                        <span className={`relative block font-sans text-xs mt-0.5 transition-colors ${active ? 'text-ivory/70' : 'text-navy-950/50'}`}>{opt.detail}</span>
+                      </label>
+                    );
+                  })}
                 </div>
-              </div>
+              </fieldset>
 
-              <div>
-                <label htmlFor="rsvpDietary" className="block text-xs font-medium text-white/95 mb-1">
-                  Dietary / Note
-                </label>
-                <input
-                  id="rsvpDietary"
-                  type="text"
-                  value={formData.dietary}
-                  onChange={(e) => setFormData({ ...formData, dietary: e.target.value })}
-                  placeholder="Halal, Veg, Allergies..."
-                  className="w-full px-3 py-2 rounded-xl bg-white text-slate-900 placeholder-slate-400 text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-baroque-400"
+              <AnimatePresence initial={false}>
+                {attending && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.45, ease }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid sm:grid-cols-2 gap-8 pt-1">
+                      <div>
+                        <p className="font-cinzel text-[10px] tracking-[0.25em] uppercase text-navy-950/60 mb-2">Total attendees</p>
+                        <div className="flex items-center gap-4">
+                          <motion.button
+                            whileTap={{ scale: 0.85 }}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, guests_count: Math.max(1, formData.guests_count - 1) })}
+                            className="w-11 h-11 rounded-full border border-navy-950/30 flex items-center justify-center hover:bg-navy-950 hover:text-holud transition-colors cursor-pointer"
+                            aria-label="Decrease attendee count"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </motion.button>
+                          <span className="relative w-10 h-12 overflow-hidden flex items-center justify-center font-serif text-4xl">
+                            <AnimatePresence mode="popLayout" initial={false}>
+                              <motion.span
+                                key={formData.guests_count}
+                                initial={{ y: 30, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: -30, opacity: 0 }}
+                                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                              >
+                                {formData.guests_count}
+                              </motion.span>
+                            </AnimatePresence>
+                          </span>
+                          <motion.button
+                            whileTap={{ scale: 0.85 }}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, guests_count: Math.min(10, formData.guests_count + 1) })}
+                            className="w-11 h-11 rounded-full border border-navy-950/30 flex items-center justify-center hover:bg-navy-950 hover:text-holud transition-colors cursor-pointer"
+                            aria-label="Increase attendee count"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </motion.button>
+                        </div>
+                      </div>
+                      <Field id="rsvpDietary" label="Dietary notes">
+                        <input id="rsvpDietary" type="text" value={formData.dietary} onChange={set('dietary')} placeholder="Allergies, vegetarian…" className={inputCls} />
+                      </Field>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <Field id="rsvpMessage" label="A prayer or note for the couple">
+                <textarea id="rsvpMessage" rows={2} value={formData.message} onChange={set('message')} placeholder="Leave a few words…" className={`${inputCls} resize-none`} />
+              </Field>
+
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                className="group relative w-full overflow-hidden rounded-full bg-navy-950 text-holud py-4 font-cinzel text-xs sm:text-sm tracking-[0.35em] uppercase disabled:opacity-60 cursor-pointer"
+              >
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-holud/30 to-transparent"
+                  animate={{ x: ['-120%', '420%'] }}
+                  transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
                 />
-              </div>
-            </div>
-          )}
-
-          {/* Personal Blessing Note */}
-          <div>
-            <label htmlFor="rsvpMessage" className="block text-xs font-medium text-white/95 mb-1">
-              Special Prayer or Note for the Couple
-            </label>
-            <textarea
-              id="rsvpMessage"
-              rows={2}
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              placeholder="Leave a prayer or message..."
-              className="w-full px-3 py-2 rounded-xl bg-white text-slate-900 placeholder-slate-400 text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-baroque-400"
-            />
+                <span className="relative inline-flex items-center gap-3">
+                  {loading ? 'Sending your reply…' : 'Send my reply'}
+                  {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
+                </span>
+              </motion.button>
+            </form>
           </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 mt-2 rounded-xl bg-baroque-300 hover:bg-baroque-200 active:scale-95 text-navy-950 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {loading ? (
-              <span>Saving Response...</span>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                <span>Confirm RSVP</span>
-              </>
-            )}
-          </button>
-        </form>
+        </motion.div>
       </div>
 
-      {/* Digital Royal VIP Pass Modal */}
-      {confirmedPass && (
-        <div
-          className="fixed inset-0 z-50 bg-navy-950/92 backdrop-blur-md flex items-center justify-center p-3 sm:p-4"
-          onClick={() => setConfirmedPass(null)}
-        >
-          <div
-            className="relative max-w-md w-full gold-pass-ticket rounded-3xl p-5 sm:p-8 text-center text-baroque-100 max-h-[92vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+      {/* Digital pass */}
+      {createPortal(
+      <AnimatePresence>
+        {confirmedPass && (
+          <motion.div
+            className="fixed inset-0 z-[70] bg-navy-950/90 backdrop-blur-md flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setConfirmedPass(null)}
           >
-            <button
-              type="button"
-              onClick={() => setConfirmedPass(null)}
-              className="absolute top-3 right-3 text-baroque-300 hover:text-white p-2"
-              aria-label="Close"
+            <motion.div
+              initial={{ y: 120, rotateX: 40, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, rotateX: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 80, opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 16 }}
+              style={{ transformPerspective: 1000 }}
+              className="relative max-w-sm w-full gold-pass-ticket rounded-[1.75rem] text-baroque-100 max-h-[92vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="w-5 h-5" />
-            </button>
+              <button type="button" onClick={() => setConfirmedPass(null)} className="absolute top-3 right-3 text-baroque-300 hover:text-white p-2 z-10 cursor-pointer" aria-label="Close">
+                <X className="w-5 h-5" />
+              </button>
 
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-baroque-300/80 bg-baroque-400/20 flex items-center justify-center mx-auto mb-2 sm:mb-3">
-              <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7 text-baroque-300" />
-            </div>
+              <div className="p-7 text-center">
+                <div className="relative w-24 h-24 mx-auto text-holud">
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 30, repeat: Infinity, ease: 'linear' }} className="absolute inset-0">
+                    <Alpana className="w-full h-full" duration={1.6} />
+                  </motion.div>
+                  <span className="absolute inset-0 flex items-center justify-center font-script text-3xl text-baroque-100">J&amp;T</span>
+                </div>
+                <p className="font-cinzel text-[10px] tracking-[0.4em] uppercase text-holud mt-4">Invitation Pass</p>
+                <h3 className="font-serif italic text-3xl mt-1 gold-foil-text">{confirmedPass.name}</h3>
+              </div>
 
-            <p className="font-cinzel text-[10px] sm:text-xs tracking-[0.3em] uppercase text-baroque-400 font-bold">
-              Royal Invitation Pass
-            </p>
-            <h3 className="font-cinzel text-lg sm:text-2xl font-bold gold-foil-text mt-1">
-              {confirmedPass.name}
-            </h3>
+              {/* perforation */}
+              <div className="relative flex items-center">
+                <span className="absolute -left-3 w-6 h-6 rounded-full bg-navy-950" />
+                <span className="flex-1 mx-5 border-t-2 border-dashed border-baroque-400/30" />
+                <span className="absolute -right-3 w-6 h-6 rounded-full bg-navy-950" />
+              </div>
 
-            <div className="my-3 sm:my-4 py-2.5 sm:py-3 border-y border-baroque-400/30 text-xs font-sans space-y-1 text-baroque-200/90 text-left sm:text-center">
-              <p>
-                <strong className="text-baroque-300">Events:</strong>{' '}
-                {confirmedPass.attendance === 'both'
-                  ? 'Gaye Holud (25 Dec) & Reception (27 Dec)'
-                  : confirmedPass.attendance === 'holud'
-                  ? 'Gaye Holud (25th Dec, Eagle Hall, BAF Base Bashar)'
-                  : confirmedPass.attendance === 'reception'
-                  ? 'Wedding Reception (27th Dec, SKS Hall)'
-                  : 'Warm Regrets & Prayers'}
-              </p>
-              {confirmedPass.attendance !== 'unable' && (
+              <div className="p-7 pt-5 font-sans text-sm space-y-2 text-baroque-200/90">
                 <p>
-                  <strong className="text-baroque-300">Party Size:</strong>{' '}
-                  {confirmedPass.guests_count} {confirmedPass.guests_count === 1 ? 'Guest' : 'Guests'}
+                  <span className="text-baroque-400">Events · </span>
+                  {confirmedPass.attendance === 'both'
+                    ? 'Gaye Holud (25 Dec) & Reception (27 Dec)'
+                    : confirmedPass.attendance === 'holud'
+                    ? 'Gaye Holud (25 Dec, Eagle Hall, BAF Base Bashar)'
+                    : confirmedPass.attendance === 'reception'
+                    ? 'Wedding Reception (27 Dec, SKS Hall)'
+                    : 'Warm regrets & prayers'}
                 </p>
-              )}
-              <p className="text-[10px] text-baroque-400/70 font-mono">
-                PASS ID: #JFT-{String(confirmedPass.id).padStart(4, '0')} • SAVED IN DATABASE
-              </p>
-            </div>
+                {confirmedPass.attendance !== 'unable' && (
+                  <p>
+                    <span className="text-baroque-400">Party · </span>
+                    {confirmedPass.guests_count} {confirmedPass.guests_count === 1 ? 'guest' : 'guests'}
+                  </p>
+                )}
+                <p className="font-mono text-[11px] text-baroque-400/70 pt-1">PASS #JFT-{String(confirmedPass.id).padStart(4, '0')}</p>
+                <p className="font-serif italic text-base text-baroque-300/80 pt-2">We can’t wait to celebrate with you. Please show this pass at the entrance.</p>
 
-            {/* Stylized QR Code Graphic */}
-            <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto p-2 bg-white rounded-xl shadow-lg flex items-center justify-center">
-              <svg viewBox="0 0 100 100" className="w-full h-full text-navy-950" fill="currentColor">
-                <rect x="10" y="10" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="4" />
-                <rect x="16" y="16" width="12" height="12" />
-                <rect x="66" y="10" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="4" />
-                <rect x="72" y="16" width="12" height="12" />
-                <rect x="10" y="66" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="4" />
-                <rect x="16" y="72" width="12" height="12" />
-                <rect x="42" y="15" width="8" height="8" />
-                <rect x="52" y="25" width="6" height="6" />
-                <rect x="44" y="44" width="12" height="12" />
-                <rect x="66" y="66" width="10" height="10" />
-                <rect x="80" y="76" width="8" height="8" />
-                <rect x="25" y="45" width="8" height="8" />
-                <rect x="75" y="45" width="8" height="8" />
-              </svg>
-            </div>
-
-            <p className="font-serif italic text-xs text-baroque-300/80 mt-2 sm:mt-3">
-              We look forward to celebrating with you! Present this pass at the entrance.
-            </p>
-
-            <div className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center gap-2">
-              <button
-                type="button"
-                onClick={handleShareWhatsApp}
-                className="px-3.5 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-sans text-xs font-semibold inline-flex items-center gap-1.5 active:scale-95 shadow"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>WhatsApp</span>
-              </button>
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="px-3.5 py-2 rounded-full border border-baroque-400/50 hover:bg-baroque-400/20 text-xs text-baroque-200 inline-flex items-center gap-1.5 active:scale-95"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmedPass(null)}
-                className="px-5 py-2 rounded-full bg-baroque-300 text-navy-950 font-bold text-xs hover:bg-baroque-200 active:scale-95"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
+                <div className="pt-4 flex flex-wrap gap-2 justify-center">
+                  <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={handleShareWhatsApp} className="px-4 py-2 rounded-full bg-leaf text-white text-xs font-medium inline-flex items-center gap-1.5 cursor-pointer">
+                    <Share2 className="w-3.5 h-3.5" /> WhatsApp
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={() => window.print()} className="px-4 py-2 rounded-full border border-baroque-400/50 text-xs inline-flex items-center gap-1.5 cursor-pointer">
+                    <Printer className="w-3.5 h-3.5" /> Print
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={() => setConfirmedPass(null)} className="px-5 py-2 rounded-full bg-holud text-navy-950 font-medium text-xs cursor-pointer">
+                    Done
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>,
+        document.body
       )}
     </section>
   );

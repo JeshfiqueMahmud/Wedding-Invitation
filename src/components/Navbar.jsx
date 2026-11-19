@@ -1,174 +1,191 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent } from 'framer-motion';
 import { ShieldCheck, Menu, X, Calendar, MapPin, HeartHandshake } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
+import { ease } from '../lib/motion';
+
+const LINKS = [
+  { href: '#blessing', label: 'Invitation' },
+  { href: '#savedate', label: 'Dates' },
+  { href: '#gallery', label: 'Moments' },
+  { href: '#itinerary', label: 'Evenings' },
+  { href: '#rsvp', label: 'RSVP' },
+  { href: '#venue', label: 'Venue' },
+  { href: '#guestbook', label: 'Wishes' }
+];
 
 export default function Navbar({ isAudioPlaying, setIsAudioPlaying, onOpenAdmin }) {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [active, setActive] = useState('');
+  const { scrollY, scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30 });
 
+  // hide while reading downward, return on the slightest scroll up
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    setHidden(y > prev && y > 400);
+  });
+
+  // highlight the section currently in view
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = maxScroll > 0 ? Math.min(100, Math.max(0, (scrollY / maxScroll) * 100)) : 0;
-      setScrollProgress(pct);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    const ids = LINKS.map((l) => l.href.slice(1));
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(e.target.id);
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px' }
+    );
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+    return () => io.disconnect();
   }, []);
 
-  const navLinks = [
-    { href: '#blessing', label: 'Invitation' },
-    { href: '#gallery', label: 'Gallery' },
-    { href: '#savedate', label: 'Dates' },
-    { href: '#rsvp', label: 'RSVP' },
-    { href: '#venue', label: 'Venue' },
-    { href: '#itinerary', label: 'Itinerary' },
-    { href: '#guestbook', label: 'Wishes' }
-  ];
-
-  const handleNavClick = () => {
-    setMobileMenuOpen(false);
-  };
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   return (
     <>
-      {/* Scroll Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 h-[3px] z-50 bg-white/5">
-        <div
-          className="h-full bg-gradient-to-r from-baroque-500 via-baroque-200 to-baroque-400 transition-all duration-150"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
+      <motion.div style={{ scaleX: progress, originX: 0 }} className="fixed top-0 left-0 right-0 h-[2px] z-50 bg-gradient-to-r from-holud via-holud-deep to-sindoor" />
 
-      {/* Floating Top Navigation Pill */}
-      <header className="fixed top-2 sm:top-3 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-3xl">
-        <nav className="navy-gold-card rounded-full px-3.5 sm:px-6 py-2 flex items-center justify-between text-xs font-sans tracking-widest uppercase shadow-xl">
-          <a
-            href="#hero"
-            className="font-cinzel font-bold text-sm sm:text-base gold-foil-text tracking-wider hover:opacity-90 transition-opacity"
-          >
-            J &amp; F
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: hidden && !open ? -100 : 0 }}
+        transition={{ duration: 0.45, ease }}
+        className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-4xl"
+      >
+        <nav className="navy-gold-card rounded-full pl-5 pr-2 py-2 flex items-center justify-between">
+          <a href="#hero" className="font-script text-2xl gold-foil-text leading-none pt-1" aria-label="Back to top">
+            J&amp;T
           </a>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-5 text-[11px] text-baroque-200/80">
-            {navLinks.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="hover:text-baroque-300 transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
+          <div className="hidden md:flex items-center gap-1">
+            {LINKS.map((l) => {
+              const isActive = active === l.href.slice(1);
+              return (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className={`relative px-3 py-1.5 font-cinzel text-[10px] tracking-[0.2em] uppercase transition-colors ${
+                    isActive ? 'text-navy-950' : 'text-baroque-200/70 hover:text-baroque-100'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.span layoutId="nav-active" className="absolute inset-0 rounded-full bg-holud" transition={{ type: 'spring', stiffness: 380, damping: 32 }} />
+                  )}
+                  <span className="relative">{l.label}</span>
+                </a>
+              );
+            })}
           </div>
 
-          {/* Controls: Audio, Admin, Mobile Menu */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <AudioPlayer
-              isPlaying={isAudioPlaying}
-              onToggle={() => setIsAudioPlaying(!isAudioPlaying)}
-            />
-
-            {/* Admin RSVP Manager Button */}
+          <div className="flex items-center gap-1.5">
+            <AudioPlayer isPlaying={isAudioPlaying} onToggle={() => setIsAudioPlaying(!isAudioPlaying)} />
             <button
               type="button"
               onClick={onOpenAdmin}
-              className="p-1.5 sm:p-2 rounded-full border border-baroque-400/35 hover:bg-baroque-400/20 text-baroque-300 transition-all"
-              title="RSVP Database & Guest Analytics"
-              aria-label="Admin Dashboard"
+              className="p-2 rounded-full border border-baroque-400/25 hover:bg-baroque-400/15 text-baroque-300 transition-colors cursor-pointer"
+              title="Organizer dashboard"
+              aria-label="Organizer dashboard"
             >
               <ShieldCheck className="w-4 h-4" />
             </button>
-
-            {/* Mobile Hamburger Toggle */}
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 rounded-full border border-baroque-400/35 text-baroque-300 hover:bg-baroque-400/20 transition-all"
+              onClick={() => setOpen(!open)}
+              className="md:hidden p-2 rounded-full border border-baroque-400/25 text-baroque-300 cursor-pointer"
               aria-label="Toggle navigation menu"
+              aria-expanded={open}
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span key={open ? 'x' : 'm'} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} className="block">
+                  {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                </motion.span>
+              </AnimatePresence>
             </button>
           </div>
         </nav>
-      </header>
+      </motion.header>
 
-      {/* Mobile Menu Drawer Overlay */}
-      {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-navy-950/95 backdrop-blur-lg flex flex-col justify-center items-center px-6 md:hidden animate-in fade-in duration-200"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <div
-            className="w-full max-w-xs text-center space-y-4"
-            onClick={(e) => e.stopPropagation()}
+      {/* Mobile menu — an iris that opens from the menu button */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="fixed inset-0 z-40 bg-navy-950 md:hidden flex flex-col justify-center px-8"
+            initial={{ clipPath: 'circle(0% at 92% 4%)' }}
+            animate={{ clipPath: 'circle(150% at 92% 4%)' }}
+            exit={{ clipPath: 'circle(0% at 92% 4%)' }}
+            transition={{ duration: 0.7, ease: [0.7, 0, 0.2, 1] }}
+            onClick={() => setOpen(false)}
           >
-            <p className="font-cinzel text-xs tracking-[0.3em] uppercase text-baroque-400 font-bold mb-4">
-              Jeshfique &amp; Faheema
-            </p>
-
-            <div className="flex flex-col space-y-3 font-cinzel text-sm tracking-widest uppercase">
-              {navLinks.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={handleNavClick}
-                  className="py-2.5 px-4 rounded-xl border border-baroque-400/20 bg-navy-900/60 hover:bg-baroque-400/20 text-baroque-200 hover:text-white transition-all shadow-sm"
+            <p className="font-bangla text-holud text-lg mb-6">শুভ বিবাহ</p>
+            <nav className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+              {LINKS.map((l, i) => (
+                <motion.a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 + i * 0.05, duration: 0.5, ease }}
+                  className="flex items-baseline gap-4 py-1.5 font-serif italic font-light text-4xl text-baroque-100"
                 >
-                  {item.label}
-                </a>
+                  <span className="font-cinzel not-italic text-[10px] tracking-[0.2em] text-baroque-400 w-6">{String(i + 1).padStart(2, '0')}</span>
+                  {l.label}
+                </motion.a>
               ))}
-            </div>
+            </nav>
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpen(false);
+                onOpenAdmin();
+              }}
+              className="mt-10 self-start inline-flex items-center gap-2 font-cinzel text-[10px] tracking-[0.25em] uppercase text-baroque-300/70"
+            >
+              <ShieldCheck className="w-4 h-4" /> Organizer dashboard
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            <div className="pt-4 border-t border-baroque-400/20">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenAdmin();
-                }}
-                className="w-full py-2.5 rounded-xl border border-baroque-400/40 text-baroque-300 font-sans text-xs uppercase tracking-wider flex items-center justify-center gap-2"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Organizer Dashboard</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Floating Bottom Quick-Action Bar */}
-      <div className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-sm pointer-events-auto">
-        <div className="navy-gold-card rounded-full p-1.5 flex items-center justify-between shadow-2xl border border-baroque-400/40 backdrop-blur-xl">
-          <a
-            href="#savedate"
-            className="flex-1 py-2 text-center font-sans text-[11px] font-semibold text-baroque-200/90 hover:text-white flex items-center justify-center gap-1"
-          >
-            <Calendar className="w-3.5 h-3.5 text-baroque-300" />
-            <span>Dates</span>
+      {/* Mobile quick-action bar */}
+      <motion.div
+        initial={{ y: 120 }}
+        animate={{ y: open ? 120 : 0 }}
+        transition={{ delay: open ? 0 : 1, duration: 0.6, ease }}
+        className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-sm pb-[env(safe-area-inset-bottom)]"
+      >
+        <div className="navy-gold-card rounded-full p-1.5 flex items-center justify-between">
+          <a href="#savedate" className="flex-1 py-2 flex items-center justify-center gap-1.5 font-sans text-xs text-baroque-200/90">
+            <Calendar className="w-3.5 h-3.5 text-holud" /> Dates
           </a>
-
-          <a
+          <motion.a
+            whileTap={{ scale: 0.94 }}
             href="#rsvp"
-            className="flex-1 py-2 px-3 mx-1 rounded-full bg-gradient-to-r from-baroque-300 to-baroque-400 text-navy-950 font-sans text-xs font-bold uppercase tracking-wider shadow-lg flex items-center justify-center gap-1 hover:brightness-105 active:scale-95 transition-all text-center"
+            className="flex-1 py-2.5 rounded-full bg-holud text-navy-950 flex items-center justify-center gap-1.5 font-cinzel text-[11px] tracking-[0.2em] uppercase"
           >
-            <HeartHandshake className="w-3.5 h-3.5" />
-            <span>RSVP</span>
-          </a>
-
-          <a
-            href="#venue"
-            className="flex-1 py-2 text-center font-sans text-[11px] font-semibold text-baroque-200/90 hover:text-white flex items-center justify-center gap-1"
-          >
-            <MapPin className="w-3.5 h-3.5 text-baroque-300" />
-            <span>Venue</span>
+            <HeartHandshake className="w-3.5 h-3.5" /> RSVP
+          </motion.a>
+          <a href="#venue" className="flex-1 py-2 flex items-center justify-center gap-1.5 font-sans text-xs text-baroque-200/90">
+            <MapPin className="w-3.5 h-3.5 text-holud" /> Venue
           </a>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }

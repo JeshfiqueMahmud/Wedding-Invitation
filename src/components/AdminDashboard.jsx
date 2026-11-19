@@ -126,7 +126,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                   RSVP Database &amp; Guests
                 </h3>
                 <p className="font-sans text-[11px] sm:text-xs text-baroque-300/80">
-                  Live SQLite records for Jeshfique &amp; Faheema’s celebrations
+                  Live SQLite records for Jeshfique &amp; Tamanna’s celebrations
                 </p>
               </div>
 
@@ -141,7 +141,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
                 </button>
                 <a
                   href="/api/export-rsvps"
-                  download="Jeshfique_Faheema_Wedding_RSVP_List.csv"
+                  download="Jeshfique_Tamanna_Wedding_RSVP_List.csv"
                   className="px-3 py-1.5 rounded-xl bg-baroque-300 hover:bg-baroque-200 active:scale-95 text-navy-950 text-xs font-bold inline-flex items-center gap-1.5 shadow"
                 >
                   <Download className="w-3.5 h-3.5" />
