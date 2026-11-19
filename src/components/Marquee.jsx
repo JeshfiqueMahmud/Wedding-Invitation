@@ -51,7 +51,7 @@ export default function Marquee() {
     <section aria-hidden="true" className="relative py-8 sm:py-12 -rotate-2 my-6">
       <div className="bg-holud text-navy-950 py-3 sm:py-4 shadow-[0_20px_60px_-20px_rgba(243,179,61,0.5)]">
         <Row baseVelocity={-2.5} className="font-serif italic font-light text-4xl sm:text-6xl">
-          Gaye Holud <Dot /> twenty-fifth December <Dot /> Wedding Reception <Dot /> twenty-seventh December <Dot /> Dhaka <Dot />
+          Gaye Holud <Dot /> Twenty-Fifth December <Dot /> Wedding Reception <Dot /> Twenty-Seventh December <Dot /> Dhaka <Dot />
         </Row>
       </div>
       <div className="border-y border-baroque-400/25 py-2.5 sm:py-3 rotate-[3deg] -mt-1 bg-navy-950/95">
