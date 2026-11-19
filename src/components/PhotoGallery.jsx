@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { SectionHeading, ease } from '../lib/motion';
 import { useSiteImages } from '../lib/images';
 
@@ -49,9 +49,8 @@ function PhotoCard({ photo, idx, progress, onOpen, hidden }) {
 
 export default function PhotoGallery() {
   const site = useSiteImages();
-  // visitors' own photos are added on top, only on their device
-  const [localPhotos, setLocalPhotos] = useState([]);
-  const photos = [...site.gallery, ...localPhotos];
+  // Photos are managed only through the organizer portal (AdminPhotos).
+  const photos = site.gallery;
   const [openIdx, setOpenIdx] = useState(null);
   const [originSrc, setOriginSrc] = useState(null);
   const [direction, setDirection] = useState(0);
@@ -103,18 +102,6 @@ export default function PhotoGallery() {
     };
   }, [openIdx, photos.length]);
 
-  const handleUpload = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    const added = files.map((file, i) => ({
-      src: URL.createObjectURL(file),
-      title: 'Your memory',
-      subtitle: `Shared photo ${i + 1}`
-    }));
-    setLocalPhotos((p) => [...p, ...added]);
-    e.target.value = '';
-  };
-
   const current = openIdx !== null ? photos[openIdx] : null;
 
   return (
@@ -139,21 +126,6 @@ export default function PhotoGallery() {
                 setOpenIdx(i);
               }} />
             ))}
-
-            <label
-              htmlFor="galleryPhotoInput"
-              className="shrink-0 w-[min(64vw,38svh)] sm:w-[min(320px,38svh)] aspect-[4/5] mt-[3svh] rounded-sm border-2 border-dashed border-baroque-400/40 flex flex-col items-center justify-center gap-3 text-baroque-300 cursor-pointer hover:bg-baroque-400/5 hover:border-baroque-400 transition-colors"
-            >
-              <motion.span
-                whileHover={{ rotate: 90 }}
-                className="w-14 h-14 rounded-full border border-baroque-400/50 flex items-center justify-center"
-              >
-                <Plus className="w-6 h-6" />
-              </motion.span>
-              <span className="font-serif italic text-2xl">Add your photos</span>
-              <span className="font-sans text-xs text-baroque-300/60 px-8 text-center">They stay on your device — just for you to see here.</span>
-              <input id="galleryPhotoInput" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
-            </label>
           </motion.div>
 
           <div className="px-5 max-w-5xl mx-auto w-full mt-[4svh] flex items-center gap-4">

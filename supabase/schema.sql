@@ -62,6 +62,10 @@ alter table public.rsvps              enable row level security;
 alter table public.guestbook_messages enable row level security;
 alter table public.images             enable row level security;
 
+-- Newer Supabase projects don't grant table access to the anon role by default.
+-- Give it read access to images only (RLS above still applies on top of this).
+grant select on public.images to anon, authenticated;
+
 drop policy if exists "Anyone can read site images" on public.images;
 create policy "Anyone can read site images"
   on public.images for select
