@@ -5,8 +5,13 @@ import CoupleFrame from './CoupleFrame';
 import { useSiteImages } from '../lib/images';
 import { Reveal, ScrollWords, SectionHeading, ease } from '../lib/motion';
 
-const VERSE =
-  '“And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy.”';
+const QUOTE =
+  '“The first time you looked at me, the whole world went quiet — and my heart, very loudly, did not.”';
+
+// Paste the song lines you want to show here, one per line (leave empty to hide the block).
+const SONG_LYRIC = ``;
+
+const SONG_CREDIT = '“Beautiful” · Crush · Goblin OST';
 
 export default function BlessingSection() {
   const { couple } = useSiteImages();
@@ -72,10 +77,17 @@ export default function BlessingSection() {
             </div>
 
             <div className="mt-10 pl-0 md:pl-6 md:border-l border-dashed border-baroque-400/40">
-              <ScrollWords text={VERSE} className="font-serif italic text-lg sm:text-xl leading-relaxed text-baroque-100" />
-              <Reveal className="font-cinzel text-[10px] tracking-[0.3em] uppercase text-baroque-400 mt-3">
-                — Surah Ar-Rum · 30:21
-              </Reveal>
+              <ScrollWords text={QUOTE} className="font-serif italic text-lg sm:text-xl leading-relaxed text-baroque-100" />
+              {SONG_LYRIC.trim() && (
+                <div className="mt-8 pt-6 border-t border-dashed border-baroque-400/30">
+                  <Reveal className="font-serif italic text-base sm:text-lg leading-relaxed text-baroque-200/90 whitespace-pre-line">
+                    {SONG_LYRIC.trim()}
+                  </Reveal>
+                  <Reveal className="font-cinzel text-[10px] tracking-[0.3em] uppercase text-baroque-400 mt-3">
+                    — Our song · {SONG_CREDIT}
+                  </Reveal>
+                </div>
+              )}
             </div>
           </div>
 
