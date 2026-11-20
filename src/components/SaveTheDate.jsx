@@ -13,7 +13,7 @@ const EVENTS = {
     time: '6:00 PM – 11:30 PM',
     venue: 'Eagle Hall',
     place: 'BAF Base Bashar, Dhaka',
-    blurb: 'An evening of turmeric, marigolds, music and mehndi.',
+    blurb: 'An evening of soulful harmony, captivating rhythm, and heartfelt blessings shared with the people who matter most.',
     google:
       'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sangeet:+Jeshfique+Mahmud+%26+Faheema+Shaheed+Tamanna&dates=20261225T120000Z/20261225T173000Z&details=Festive+Sangeet+Celebration&location=Eagle+Hall,+BAF+Base+Bashar'
   },
@@ -26,7 +26,7 @@ const EVENTS = {
     time: '6:00 PM – 11:30 PM',
     venue: 'SKS Convention Hall',
     place: 'SKS Tower, Mohakhali, Dhaka',
-    blurb: 'A night of ivory, gold and celebration under one roof.',
+    blurb: 'Step into a magical night filled with warm company, celebratory cheer, and heartfelt blessings as we gather to honor a beautiful new beginning.',
     google:
       'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wedding+Reception:+Jeshfique+Mahmud+%26+Faheema+Shaheed+Tamanna&dates=20261227T120000Z/20261227T173000Z&details=Royal+Wedding+Reception&location=SKS+Convention+Hall,+Mohakhali,+Dhaka'
   }
