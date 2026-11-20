@@ -9,7 +9,21 @@ const QUOTE =
   '“The first time you looked at me, the whole world went quiet — and my heart, very loudly, did not.”';
 
 // Paste the song lines you want to show here, one per line (leave empty to hide the block).
-const SONG_LYRIC = ``;
+const SONG_LYRIC = `It’s a beautiful life
+                    Always I’ll protect you
+                    It’s a beautiful life
+                    So that you can lean on me
+                    Beautiful love
+                    Your tears and also your smiles
+                    So that you can share them with me by your side
+                    
+                    It’s a beautiful life
+                    Beautiful day
+                    The day I loved you so badly
+                    Beautiful life beautiful day
+                    I don’t want to lose you
+                    
+                    — Our song · “Beautiful” · Crush · Goblin OST`;
 
 const SONG_CREDIT = '“Beautiful” · Crush · Goblin OST';
 
