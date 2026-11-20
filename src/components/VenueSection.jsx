@@ -5,7 +5,7 @@ import { SectionHeading, ease } from '../lib/motion';
 
 const VENUES = {
   holud: {
-    label: 'Gaye Holud',
+    label: 'Sangeet',
     date: '25 December · 6:00 PM',
     title: 'Eagle Hall',
     subtitle: 'BAF Base Bashar, Dhaka',

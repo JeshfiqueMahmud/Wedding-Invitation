@@ -4,8 +4,8 @@ import { Flower2, Music2, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { SectionHeading, ease } from '../lib/motion';
 
 const EVENTS = [
-  { date: '25 Dec', time: '6:00 PM', Icon: Flower2, title: 'Gaye Holud', place: 'Eagle Hall, BAF Base Bashar', note: 'Turmeric, marigolds & the first blessings', tone: 'holud' },
-  { date: '25 Dec', time: '8:30 – 11:30 PM', Icon: Music2, title: 'Holud & Folk Night', place: 'Blessings & feast', note: 'Songs, dholak and dancing till late', tone: 'holud' },
+  { date: '25 Dec', time: '6:00 PM', Icon: Flower2, title: 'Sangeet', place: 'Eagle Hall, BAF Base Bashar', note: 'Turmeric, marigolds & the first blessings', tone: 'holud' },
+  { date: '25 Dec', time: '8:30 – 11:30 PM', Icon: Music2, title: 'Sangeet & Folk Night', place: 'Blessings & feast', note: 'Songs, dholak and dancing till late', tone: 'holud' },
   { date: '27 Dec', time: '6:00 PM', Icon: Sparkles, title: 'Wedding Reception', place: 'SKS Convention Hall', note: 'The couple welcomes you in ivory & gold', tone: 'gold' },
   { date: '27 Dec', time: '8:30 – 11:30 PM', Icon: UtensilsCrossed, title: 'Royal Banquet', place: 'Feast & portraits', note: 'Dinner, duas and photographs together', tone: 'gold' }
 ];

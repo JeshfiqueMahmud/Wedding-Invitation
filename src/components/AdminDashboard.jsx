@@ -229,7 +229,7 @@ export default function AdminDashboard({ isOpen, onClose }) {
 
                 <div className="navy-gold-card rounded-xl p-2.5 sm:p-3 text-center">
                   <div className="text-baroque-300 text-[11px] sm:text-xs font-semibold mb-0.5">
-                    🌼 Holud (25 Dec)
+                    🌼 Sangeet (25 Dec)
                   </div>
                   <div className="font-cinzel text-xl sm:text-2xl font-bold gold-foil-text">
                     {(stats.breakdown?.both?.guests || 0) + (stats.breakdown?.holud_only?.guests || 0)}

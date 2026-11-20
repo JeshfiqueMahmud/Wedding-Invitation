@@ -105,7 +105,7 @@ export default function HeroSection({ ready }) {
           className="mt-10 sm:mt-12 inline-flex items-stretch rounded-full border border-baroque-400/30 bg-navy-900/90 overflow-hidden"
         >
           <a href="#savedate" className="px-4 sm:px-6 py-2.5 text-left hover:bg-holud/10 transition-colors">
-            <span className="block font-cinzel text-[9px] tracking-[0.3em] uppercase text-holud">Gaye Holud</span>
+            <span className="block font-cinzel text-[9px] tracking-[0.3em] uppercase text-holud">Sangeet</span>
             <span className="block font-serif text-lg sm:text-xl text-baroque-100 leading-tight">25 · XII</span>
           </a>
           <span className="w-px bg-baroque-400/30" />

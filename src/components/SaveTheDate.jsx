@@ -8,14 +8,14 @@ const EVENTS = {
     key: 'holud',
     day: '25',
     weekday: 'Friday',
-    name: 'Gaye Holud',
-    bangla: 'গায়ে হলুদ',
+    name: 'Sangeet',
+    bangla: 'সঙ্গীত',
     time: '6:00 PM – 11:30 PM',
     venue: 'Eagle Hall',
     place: 'BAF Base Bashar, Dhaka',
     blurb: 'An evening of turmeric, marigolds, music and mehndi.',
     google:
-      'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Gaye+Holud:+Jeshfique+Mahmud+%26+Faheema+Shaheed+Tamanna&dates=20261225T120000Z/20261225T173000Z&details=Festive+Gaye+Holud+Celebration&location=Eagle+Hall,+BAF+Base+Bashar'
+      'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sangeet:+Jeshfique+Mahmud+%26+Faheema+Shaheed+Tamanna&dates=20261225T120000Z/20261225T173000Z&details=Festive+Sangeet+Celebration&location=Eagle+Hall,+BAF+Base+Bashar'
   },
   reception: {
     key: 'reception',
@@ -42,8 +42,8 @@ const downloadICS = (type) => {
     'BEGIN:VEVENT',
     `DTSTART;TZID=Asia/Dhaka:${isHolud ? '20261225T180000' : '20261227T180000'}`,
     `DTEND;TZID=Asia/Dhaka:${isHolud ? '20261225T233000' : '20261227T233000'}`,
-    `SUMMARY:${isHolud ? 'Gaye Holud: Jeshfique Mahmud & Faheema Shaheed Tamanna' : 'Wedding Reception: Jeshfique Mahmud & Faheema Shaheed Tamanna'}`,
-    `DESCRIPTION:${isHolud ? 'Join us for the festive Gaye Holud celebrations of Jeshfique & Tamanna.' : 'Join us for the Royal Wedding Reception of Jeshfique & Tamanna.'}`,
+    `SUMMARY:${isHolud ? 'Sangeet: Jeshfique Mahmud & Faheema Shaheed Tamanna' : 'Wedding Reception: Jeshfique Mahmud & Faheema Shaheed Tamanna'}`,
+    `DESCRIPTION:${isHolud ? 'Join us for the festive Sangeet celebrations of Jeshfique & Tamanna.' : 'Join us for the Royal Wedding Reception of Jeshfique & Tamanna.'}`,
     `LOCATION:${isHolud ? 'Eagle Hall, BAF Base Bashar' : 'SKS Convention Hall, SKS Tower, Mohakhali, Dhaka'}`,
     'STATUS:CONFIRMED',
     'END:VEVENT',
@@ -54,7 +54,7 @@ const downloadICS = (type) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = isHolud ? 'Jeshfique-Tamanna-Gaye-Holud.ics' : 'Jeshfique-Tamanna-Wedding-Reception.ics';
+  a.download = isHolud ? 'Jeshfique-Tamanna-Sangeet.ics' : 'Jeshfique-Tamanna-Wedding-Reception.ics';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -320,7 +320,7 @@ function DecemberStrip() {
                       />
                     </svg>
                     <span className="font-cinzel text-[8px] tracking-[0.2em] uppercase text-baroque-300 mt-3 sm:mt-4 whitespace-nowrap">
-                      {d === 25 ? 'Holud' : 'Reception'}
+                      {d === 25 ? 'Sangeet' : 'Reception'}
                     </span>
                   </>
                 )}

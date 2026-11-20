@@ -11,7 +11,7 @@ const EMPTY = { name: '', phone: '', email: '', attendance: 'both', guests_count
 
 const OPTIONS = [
   { value: 'both', label: 'Joyfully attending both', detail: '25 & 27 December' },
-  { value: 'holud', label: 'Gaye Holud only', detail: '25 Dec · Eagle Hall' },
+  { value: 'holud', label: 'Sangeet only', detail: '25 Dec · Eagle Hall' },
   { value: 'reception', label: 'Reception only', detail: '27 Dec · SKS Hall' },
   { value: 'unable', label: 'Regretfully absent', detail: 'Sending warm wishes' }
 ];
@@ -286,9 +286,9 @@ export default function RsvpSection({ onRsvpSubmitted }) {
                 <p>
                   <span className="text-baroque-400">Events · </span>
                   {confirmedPass.attendance === 'both'
-                    ? 'Gaye Holud (25 Dec) & Reception (27 Dec)'
+                    ? 'Sangeet (25 Dec) & Reception (27 Dec)'
                     : confirmedPass.attendance === 'holud'
-                    ? 'Gaye Holud (25 Dec, Eagle Hall, BAF Base Bashar)'
+                    ? 'Sangeet (25 Dec, Eagle Hall, BAF Base Bashar)'
                     : confirmedPass.attendance === 'reception'
                     ? 'Wedding Reception (27 Dec, SKS Hall)'
                     : 'Warm regrets & prayers'}

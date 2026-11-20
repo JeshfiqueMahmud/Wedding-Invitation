@@ -40,11 +40,11 @@ The entire application is optimized for mobile phones (iOS Safari, Android Chrom
   - Hosted on Supabase; the Express API connects over SSL. Photos live in Supabase Storage.
   - Tables: `rsvps`, `guestbook_messages` and `images` (which photo goes where).
 - **Live RSVP & Party Counter**:
-  - Attendance choices: Both Events, Holud Only, Reception Only, Unable to attend.
+  - Attendance choices: Both Events, Sangeet Only, Reception Only, Unable to attend.
   - Stepper buttons for party size (+1s, family count).
   - Golden celebratory confetti explosion (`canvas-confetti`).
 - **December 2026 Dhaka Calendar & Countdown**:
-  - Highlights 25th Dec (Holud) and 27th Dec (Reception).
+  - Highlights 25th Dec (Sangeet) and 27th Dec (Reception).
   - 1-click `.ics` calendar downloads & direct Google Calendar link.
   - Live Dhaka countdown ticker (BST, UTC+6).
 - **Celebration Itinerary & Live Guestbook**:
