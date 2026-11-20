@@ -83,20 +83,3 @@ on conflict (id) do update
   set public = excluded.public,
       file_size_limit = excluded.file_size_limit,
       allowed_mime_types = excluded.allowed_mime_types;
-
--- ---------------------------------------------------------------------------
--- 6. Starter guestbook wishes (only added when the table is empty)
--- ---------------------------------------------------------------------------
-insert into public.guestbook_messages (name, message, likes, created_at)
-select * from (values
-  ('Family & Friends, Dhaka',
-   'Barakallahu lakuma wa baraka alaikuma wa jama''a bainakuma fee khair! Wishing Jeshfique and Tamanna a lifetime of peace, love, and endless barakah.',
-   18, now() - interval '3 days'),
-  ('Tanzim & Rashida',
-   'Heartiest congratulations to the most gorgeous couple! Can''t wait to dance at the Holud and celebrate you both in Dhaka!',
-   12, now() - interval '2 days'),
-  ('Ahmed Zubair & Family',
-   'May Allah shower your home with everlasting happiness and prosperity. Hearty congratulations, brother Jeshfique!',
-   9, now() - interval '1 day')
-) as seed(name, message, likes, created_at)
-where not exists (select 1 from public.guestbook_messages);

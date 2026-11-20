@@ -130,6 +130,12 @@ export default function GuestbookSection() {
           </p>
         )}
 
+        {wishesState === 'ready' && messages.length === 0 && (
+          <p className="mt-14 text-center font-serif italic text-lg text-baroque-200/60" role="status">
+            Be the first to leave a blessing for Jeshfique &amp; Tamanna.
+          </p>
+        )}
+
         <div className="mt-14 columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:_balance]">
           <AnimatePresence initial={false}>
             {messages.map((entry, i) => (
